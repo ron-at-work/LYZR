@@ -1,0 +1,128 @@
+/* customer-grid */
+.customer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: #e6d7d0;
+}
+
+.customer-tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.customer-logo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 78%;
+  max-height: 42px;
+  object-fit: contain;
+  opacity: 0.78;
+  filter: grayscale(1);
+  transition: filter 0.28s ease, opacity 0.28s ease;
+}
+
+.customer-tile:hover .customer-logo,
+.customer-tile:focus-within .customer-logo {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.customer-arrow {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  pointer-events: none;
+  background: rgb(17 17 17 / 0.06);
+  color: #1e1b18;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.customer-arrow svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.25s ease;
+}
+
+.customer-tile:hover .customer-arrow,
+.customer-featured:hover .customer-arrow {
+  background: rgb(17 17 17 / 0.12);
+}
+
+.customer-tile:hover .customer-arrow svg,
+.customer-featured:hover .customer-arrow svg {
+  transform: rotate(-45deg);
+}
+
+.customer-featured .customer-arrow {
+  background: rgb(255 255 255 / 0.16);
+  color: #f7f7f5;
+}
+
+.customer-featured:hover .customer-arrow {
+  background: #f7f7f5;
+  color: #111111;
+}
+
+.customer-featured {
+  position: relative;
+  grid-column: 1 / -1;
+  min-height: 280px;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: #1a110d;
+  color: #f7f7f5;
+}
+
+@media (max-width: 1023px) {
+  .customer-tile {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .customer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .customer-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .customer-logo {
+    max-height: 36px;
+    max-width: 72%;
+  }
+
+  .customer-arrow {
+    display: flex;
+  }
+
+  .customer-featured {
+    grid-column: 7 / span 2;
+    grid-row: 1 / span 2;
+    min-height: 0;
+    height: 100%;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

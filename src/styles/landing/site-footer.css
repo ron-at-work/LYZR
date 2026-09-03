@@ -1,0 +1,124 @@
+/* site-footer */
+.site-footer {
+  position: relative;
+  overflow: hidden;
+  background: var(--ink);
+  color: #f7f7f5;
+}
+
+.site-footer-art {
+  position: relative;
+  height: clamp(220px, 34vw, 420px);
+  pointer-events: none;
+}
+
+.site-footer-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+.site-footer-art-fade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(17 17 17 / 0.18) 0%, rgb(17 17 17 / 0.12) 38%, var(--ink) 92%),
+    linear-gradient(90deg, rgb(17 17 17 / 0.35) 0%, transparent 22%, transparent 78%, rgb(17 17 17 / 0.28) 100%);
+}
+
+.site-footer-art-trace {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: min(46vw, 560px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, var(--volt), transparent);
+  opacity: 0.55;
+}
+
+.site-footer-inner {
+  position: relative;
+  z-index: 1;
+  margin-top: -72px;
+}
+
+.site-footer-heading {
+  display: block;
+  margin-bottom: 18px;
+  color: #f7f7f5;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.site-footer-link {
+  display: block;
+  color: rgb(255 248 245 / 0.68);
+  font-size: 13.5px;
+  line-height: 2;
+  overflow-wrap: anywhere;
+  transition: color 0.15s ease;
+}
+
+.site-footer-link:hover {
+  color: #f7f7f5;
+}
+
+.site-footer-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgb(255 248 245 / 0.16);
+  border-radius: 8px;
+  background: rgb(255 248 245 / 0.06);
+  color: #f7f7f5;
+  font-size: 14px;
+}
+
+.site-footer-input::placeholder {
+  color: rgb(255 248 245 / 0.42);
+}
+
+.site-footer-input:focus {
+  outline: none;
+  border-color: rgb(255 248 245 / 0.4);
+}
+
+.site-footer-subscribe {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--on-brand);
+  border-radius: 8px;
+  background: var(--on-brand);
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.site-footer-subscribe:hover {
+  background: #efe6e1;
+}
+
+.site-footer-subscribe:active {
+  transform: translateY(1px);
+}
+
+.site-footer-social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgb(255 248 245 / 0.22);
+  border-radius: 999px;
+  color: #f7f7f5;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.site-footer-social:hover {
+  background: rgb(255 248 245 / 0.1);
+  transform: scale(1.06);
+}

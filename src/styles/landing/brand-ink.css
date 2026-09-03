@@ -1,0 +1,74 @@
+/* brand-ink */
+.bg-brand-ink {
+  background-color: var(--brand-ink-mid);
+  background-image: var(--brand-ink-gradient);
+}
+
+.bg-brand-ink.border-y,
+.bg-brand-ink.border-t,
+.bg-brand-ink.border {
+  border-color: rgb(255 248 245 / 0.1);
+}
+
+.bg-brand-ink .text-text-primary,
+.bg-brand-ink .text-ink {
+  color: var(--on-brand-ink);
+}
+
+/* text-primary is #111 — invisible on dark ink. Flip to volt for accents/labels. */
+.bg-brand-ink .text-primary {
+  color: var(--volt);
+}
+
+.bg-brand-ink .text-text-secondary,
+.bg-brand-ink .text-text-muted,
+.bg-brand-ink .text-text-faint,
+.bg-brand-ink .text-ink-muted {
+  color: var(--on-brand-ink-muted);
+}
+
+.bg-brand-ink .hover\:text-text-primary:hover {
+  color: var(--on-brand-ink);
+}
+
+.bg-brand-ink .hover\:text-primary:hover,
+.bg-brand-ink .group:hover .group-hover\:text-primary {
+  color: var(--volt-hover);
+}
+
+.bg-brand-ink .bg-surface-card .text-text-primary,
+.bg-brand-ink .bg-surface-card .text-ink,
+.bg-brand-ink .bg-surface-card.text-text-primary,
+.bg-brand-ink .bg-surface-card.text-ink {
+  color: var(--text-primary);
+}
+
+.bg-brand-ink .bg-surface-card .text-primary,
+.bg-brand-ink .bg-surface-card.text-primary {
+  color: var(--primary);
+}
+
+.bg-brand-ink .bg-surface-card .text-text-secondary,
+.bg-brand-ink .bg-surface-card.text-text-secondary {
+  color: var(--text-secondary);
+}
+
+.bg-brand-ink .bg-surface-card .text-text-muted,
+.bg-brand-ink .bg-surface-card.text-text-muted {
+  color: var(--text-muted);
+}
+
+.bg-brand-ink .bg-surface-card .text-text-faint,
+.bg-brand-ink .bg-surface-card.text-text-faint {
+  color: var(--text-faint);
+}
+
+/* White cards on dark ink: force readable inherited body text */
+.bg-brand-ink .bg-surface-card {
+  color: var(--text-secondary);
+}
+
+.bg-brand-ink .bg-surface-card .hover\:text-primary:hover,
+.bg-brand-ink .bg-surface-card .group:hover .group-hover\:text-primary {
+  color: var(--primary-hover);
+}

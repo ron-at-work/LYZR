@@ -1,0 +1,229 @@
+/* adlc */
+/* ── ADLC bento + moving border ── */
+.adlc-bento {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .adlc-bento {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .adlc-card--design {
+    grid-column: span 7;
+    min-height: 280px;
+  }
+
+  .adlc-card--build {
+    grid-column: span 5;
+    min-height: 280px;
+  }
+
+  .adlc-card--evaluate {
+    grid-column: span 5;
+  }
+
+  .adlc-card--deploy {
+    grid-column: span 7;
+  }
+
+  .adlc-card--observe {
+    grid-column: span 6;
+  }
+
+  .adlc-card--govern {
+    grid-column: span 6;
+  }
+}
+
+@media (min-width: 1024px) {
+  .adlc-bento {
+    gap: 18px;
+  }
+
+  .adlc-card--design,
+  .adlc-card--build {
+    min-height: 300px;
+  }
+}
+
+.adlc-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  border-radius: 14px;
+  padding: 1.5px;
+  overflow: hidden;
+  background: var(--border-crisp);
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  border: none;
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+
+.adlc-card-beam {
+  position: absolute;
+  inset: -70%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 250deg,
+    rgb(210 255 0 / 0.12) 285deg,
+    var(--volt) 315deg,
+    #ffffff 328deg,
+    var(--volt) 342deg,
+    transparent 360deg
+  );
+  opacity: 0;
+  transform: rotate(0deg);
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.adlc-card-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 13px;
+  padding: 24px;
+  background: var(--surface-card);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.04);
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+
+.adlc-card-icon {
+  transition: color 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.adlc-card-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.adlc-card-feature-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--border-strong);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.adlc-card:hover,
+.adlc-card:focus-visible,
+.adlc-card.is-active {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.22);
+  outline: none;
+}
+
+.adlc-card:hover .adlc-card-beam,
+.adlc-card:focus-visible .adlc-card-beam,
+.adlc-card.is-active .adlc-card-beam {
+  opacity: 1;
+  animation: adlc-border-spin 2.4s linear infinite;
+}
+
+.adlc-card:hover .adlc-card-inner,
+.adlc-card:focus-visible .adlc-card-inner,
+.adlc-card.is-active .adlc-card-inner {
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.04), inset 0 0 0 1px rgb(17 17 17 / 0.04);
+}
+
+.adlc-card:hover .adlc-card-icon,
+.adlc-card:focus-visible .adlc-card-icon,
+.adlc-card.is-active .adlc-card-icon {
+  color: var(--primary);
+  transform: scale(1.08);
+}
+
+.adlc-card:hover .adlc-card-feature,
+.adlc-card:focus-visible .adlc-card-feature,
+.adlc-card.is-active .adlc-card-feature {
+  color: var(--text-primary);
+}
+
+.adlc-card:hover .adlc-card-feature:nth-child(1),
+.adlc-card:focus-visible .adlc-card-feature:nth-child(1),
+.adlc-card.is-active .adlc-card-feature:nth-child(1) {
+  transform: translateX(2px);
+}
+
+.adlc-card:hover .adlc-card-feature:nth-child(2),
+.adlc-card:focus-visible .adlc-card-feature:nth-child(2),
+.adlc-card.is-active .adlc-card-feature:nth-child(2) {
+  transform: translateX(4px);
+  transition-delay: 0.04s;
+}
+
+.adlc-card:hover .adlc-card-feature:nth-child(3),
+.adlc-card:focus-visible .adlc-card-feature:nth-child(3),
+.adlc-card.is-active .adlc-card-feature:nth-child(3) {
+  transform: translateX(6px);
+  transition-delay: 0.08s;
+}
+
+.adlc-card:hover .adlc-card-feature-dot,
+.adlc-card:focus-visible .adlc-card-feature-dot,
+.adlc-card.is-active .adlc-card-feature-dot {
+  background: var(--volt);
+  box-shadow: 0 0 0 3px rgb(210 255 0 / 0.18);
+}
+
+.adlc-card.is-active .adlc-card-stage {
+  color: var(--primary);
+}
+
+@keyframes adlc-border-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adlc-card,
+  .adlc-card-beam,
+  .adlc-card-icon,
+  .adlc-card-feature {
+    transition: none;
+  }
+
+  .adlc-card:hover,
+  .adlc-card:focus-visible,
+  .adlc-card.is-active {
+    transform: none;
+  }
+
+  .adlc-card:hover .adlc-card-feature,
+  .adlc-card:focus-visible .adlc-card-feature,
+  .adlc-card.is-active .adlc-card-feature {
+    transform: none;
+  }
+
+  .adlc-card:hover .adlc-card-beam,
+  .adlc-card:focus-visible .adlc-card-beam,
+  .adlc-card.is-active .adlc-card-beam {
+    animation: none;
+    opacity: 0.85;
+    background: linear-gradient(
+      135deg,
+      var(--volt),
+      transparent 40%,
+      transparent 60%,
+      var(--volt)
+    );
+  }
+}

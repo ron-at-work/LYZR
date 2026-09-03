@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "../styles/landing/index.css";
 
 export const metadata: Metadata = {
   title: "Lyzr — The Enterprise Control Plane for AI Agents",

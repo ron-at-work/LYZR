@@ -1,0 +1,181 @@
+/* knowledge-base */
+/* Knowledge Base — white cards on ink */
+.kb-section .kb-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .kb-section .kb-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+}
+
+.bg-brand-ink a.kb-card,
+.bg-brand-ink a.kb-trust {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  background: #ffffff;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 14px;
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.04);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease;
+}
+
+.bg-brand-ink a.kb-card {
+  flex-direction: column;
+  min-height: 15.75rem;
+  padding: 1.85rem 1.85rem 1.5rem;
+  color: var(--text-secondary);
+}
+
+.bg-brand-ink a.kb-card:hover,
+.bg-brand-ink a.kb-trust:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 28px rgb(0 0 0 / 0.28),
+    0 2px 0 rgb(0 0 0 / 0.06);
+  border-color: rgb(255 255 255 / 0.18);
+}
+
+.bg-brand-ink a.kb-card:focus-visible,
+.bg-brand-ink a.kb-trust:focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 3px;
+}
+
+.kb-card-meta {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.kb-card-title {
+  margin: 0 0 0.7rem;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.28;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.kb-card-body {
+  margin: 0;
+  flex: 1 1 auto;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.kb-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.kb-card-arrow {
+  width: 14px;
+  height: 14px;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bg-brand-ink a.kb-card:hover .kb-card-arrow {
+  transform: translateX(3px);
+}
+
+.bg-brand-ink a.kb-trust {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.kb-trust-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-width: 0;
+  flex: 1 1 16rem;
+}
+
+.kb-trust-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--text-primary);
+}
+
+.kb-trust-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.kb-trust-sub {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.765rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.kb-trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  flex: 0 1 auto;
+}
+
+.kb-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-subtle);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .bg-brand-ink a.kb-trust {
+    padding: 1.25rem;
+  }
+
+  .kb-trust-badges {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}

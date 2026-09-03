@@ -1,0 +1,224 @@
+/* mobile-nav */
+/* Mobile / tablet nav drawer */
+.mobile-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(17 17 17 / 0.08);
+  background: var(--surface-card);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 14px rgb(0 0 0 / 0.06);
+  transition:
+    background-color 0.18s ease,
+    transform 0.15s ease;
+}
+
+.mobile-nav-btn:hover {
+  background: #f3f3f1;
+}
+
+.mobile-nav-btn:active {
+  transform: scale(0.97);
+}
+
+.mobile-nav-btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: rgb(247 247 245 / 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding:
+    max(0.75rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+.mobile-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.mobile-nav-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 1.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.85rem 0.15rem;
+  border-bottom: 1px solid rgb(17 17 17 / 0.08);
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  text-align: left;
+  background: transparent;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.mobile-nav-link:hover,
+a.mobile-nav-link:hover {
+  color: var(--ink-soft);
+}
+
+.mobile-nav-group {
+  border-bottom: 1px solid rgb(17 17 17 / 0.08);
+}
+
+.mobile-nav-group-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.85rem 0.15rem;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.mobile-nav-group-panel {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0 0 0.85rem;
+}
+
+.mobile-nav-sublink {
+  display: block;
+  padding: 0.55rem 0.35rem;
+  border-radius: 0.5rem;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.mobile-nav-sublink:hover {
+  background: rgb(17 17 17 / 0.04);
+  color: var(--ink);
+}
+
+.mobile-nav-cta-row {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.mobile-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.mobile-nav-cta--primary {
+  background: #111;
+  color: #f7f7f5;
+  border: 1px solid #111;
+}
+
+.mobile-nav-cta--ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid rgb(17 17 17 / 0.14);
+}
+
+@media (min-width: 1024px) {
+  .mobile-nav,
+  .mobile-nav-btn,
+  .mobile-nav-actions {
+    display: none !important;
+  }
+}
+
+@media (max-width: 899px) {
+  .prod-gap-title {
+    font-size: clamp(1.75rem, 6vw, 2.75rem);
+  }
+
+  .site-footer-art {
+    height: clamp(160px, 42vw, 280px);
+  }
+
+  .site-footer-inner {
+    margin-top: -48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cta-panel {
+    padding: 1.75rem 1.25rem !important;
+    border-radius: 1.25rem !important;
+  }
+
+  .founder-panel {
+    padding: 1.5rem !important;
+    border-radius: 1.15rem !important;
+  }
+
+  .path-card {
+    padding: 1.35rem !important;
+  }
+
+  .workforce-featured {
+    border-radius: 1rem;
+  }
+
+  .adlc-frameworks {
+    justify-content: flex-start;
+  }
+
+  .om-tab {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 2.5rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .workforce-featured {
+    grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
+  }
+
+  .workforce-portrait {
+    min-height: 100%;
+    max-height: none;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+}
