@@ -8,7 +8,10 @@ export function FounderSection() {
             <img
               alt="Siva Surendira, Founder and CEO of Lyzr AI"
               className="w-28 h-28 rounded-2xl object-cover border border-primary/30 lg:col-span-4 lg:w-full lg:h-auto lg:aspect-square"
+              height={400}
+              loading="lazy"
               src="/founders/siva-surendira.jpg"
+              width={400}
             />
             <div className="lg:col-span-8 lg:order-first">
               <span className="text-[11px] font-mono text-on-primary/45 tracking-widest uppercase mb-space-16 block font-medium">Founder&apos;s Operating Manifesto</span>

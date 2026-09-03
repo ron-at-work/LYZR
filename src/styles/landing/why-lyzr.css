@@ -148,7 +148,7 @@
   position: absolute;
   right: 0.85rem;
   top: 0.35rem;
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(4.5rem, 8vw, 7rem);
   font-weight: 500;
   line-height: 1;

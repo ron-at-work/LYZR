@@ -45,9 +45,11 @@ export function LogoTile({
             <img
               alt={name}
               className="customer-logo"
+              height={40}
               loading="lazy"
               onError={() => setFailed(true)}
               src={src}
+              width={120}
             />
           ) : (
             <span className="text-[14px] font-semibold text-text-primary/50 tracking-tight text-center">

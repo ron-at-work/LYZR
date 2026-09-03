@@ -11,7 +11,14 @@ export function SiteFooter() {
   return (
     <footer className="site-footer w-full">
       <div aria-hidden className="site-footer-art">
-        <img alt="" src="/lyzr-footer-art.png" />
+        <img
+          alt=""
+          decoding="async"
+          height={853}
+          loading="lazy"
+          src="/lyzr-footer-art.webp"
+          width={1280}
+        />
         <div className="site-footer-art-fade" />
         <span className="site-footer-art-trace" />
       </div>
@@ -22,7 +29,9 @@ export function SiteFooter() {
               <img
                 alt="Lyzr"
                 className="h-9 w-auto brightness-0 invert"
+                height={28}
                 src="/lyzr-logo.png"
+                width={73}
               />
             </a>
             <span className="site-footer-heading">Address</span>

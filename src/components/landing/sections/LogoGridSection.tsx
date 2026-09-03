@@ -3,11 +3,28 @@
 import { TRUSTED_LOGOS } from "../data";
 import { ArrowHint, LogoTile } from "../ui";
 
+function MobileLogoChip({ name, src }: { name: string; src: string }) {
+  return (
+    <div className="customer-marquee-chip">
+      <img
+        alt={name}
+        className="customer-marquee-logo"
+        height={28}
+        loading="lazy"
+        src={src}
+        width={96}
+      />
+    </div>
+  );
+}
+
 export function LogoGridSection() {
+  const loop = [...TRUSTED_LOGOS, ...TRUSTED_LOGOS];
+
   return (
     <section className="w-full border-y border-border-crisp bg-surface-canvas py-space-48 md:py-space-64">
       <div className="max-w-container-max mx-auto page-pad">
-        <div className="max-w-3xl mb-space-32">
+        <div className="max-w-3xl mb-space-24 md:mb-space-32">
           <h2 className="font-display display-h2 font-medium text-text-primary">
             Governing autonomous agents at the world&apos;s most ambitious{" "}
             <span className="font-semibold">enterprises and financial institutions.</span>
@@ -20,7 +37,46 @@ export function LogoGridSection() {
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </a>
         </div>
-        <div className="customer-grid">
+
+        {/* Mobile: compact marquee + metric strip */}
+        <div className="customer-mobile lg:hidden">
+          <div aria-hidden className="customer-marquee" role="presentation">
+            <div className="customer-marquee-track">
+              {loop.map((logo, i) => (
+                <MobileLogoChip key={`${logo.name}-${i}`} name={logo.name} src={logo.src} />
+              ))}
+            </div>
+          </div>
+          <ul className="sr-only">
+            {TRUSTED_LOGOS.map((logo) => (
+              <li key={logo.name}>{logo.name}</li>
+            ))}
+          </ul>
+
+          <a className="customer-mobile-featured" href="#testimonials">
+            <div className="customer-mobile-featured-copy">
+              <p className="customer-mobile-featured-kicker">Production outcome</p>
+              <p className="customer-mobile-featured-metric">
+                <span>95%</span>
+                <span className="customer-mobile-featured-label">POC-to-production conversion</span>
+              </p>
+            </div>
+            <span aria-hidden className="customer-mobile-featured-arrow">
+              <svg fill="none" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M2.5 9.5 9.5 2.5M9.5 2.5H4.25M9.5 2.5V7.75"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.4"
+                />
+              </svg>
+            </span>
+          </a>
+        </div>
+
+        {/* Desktop / tablet: bento logo grid */}
+        <div className="customer-grid hidden lg:grid">
           {TRUSTED_LOGOS.map((logo) => (
             <LogoTile
               col={logo.col}

@@ -1,8 +1,12 @@
 'use client';
 
 import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { HERO_TICKER } from "../data";
 import { formatAgentCount } from "../ui";
+
+const HERO_VIDEO_SRC =
+  "https://www.lyzr.ai/wp-content/uploads/2026/05/One-Studio.-Infinite-Possibilities.mp4";
 
 export type HeroSectionProps = {
   heroRef: React.RefObject<HTMLElement | null>;
@@ -10,6 +14,49 @@ export type HeroSectionProps = {
   setIsDev: React.Dispatch<React.SetStateAction<boolean>>;
   agentCount: number;
 };
+
+function HeroVideo() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const start = () => {
+      if (cancelled) return;
+      setActive(true);
+    };
+
+    const ric = window.requestIdleCallback?.(start, { timeout: 1800 });
+    const fallback = ric == null ? window.setTimeout(start, 900) : null;
+
+    return () => {
+      cancelled = true;
+      if (ric != null) window.cancelIdleCallback?.(ric);
+      if (fallback != null) window.clearTimeout(fallback);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!active) return;
+    const video = videoRef.current;
+    if (!video) return;
+    video.play().catch(() => {});
+  }, [active]);
+
+  return (
+    <video
+      autoPlay={active}
+      className="absolute inset-0 h-full w-full object-cover object-top"
+      loop
+      muted
+      playsInline
+      preload="none"
+      ref={videoRef}
+    >
+      {active ? <source src={HERO_VIDEO_SRC} type="video/mp4" /> : null}
+    </video>
+  );
+}
 
 export function HeroSection({
   heroRef,
@@ -110,16 +157,7 @@ export function HeroSection({
 
       <div className="hero-animate-3 relative z-10 w-full max-w-[1100px] mx-auto page-pad mt-2 md:mt-3 pb-0">
         <div className="relative w-full overflow-hidden rounded-t-xl border border-b-0 border-hero-frame bg-ink shadow-video aspect-[16/9]">
-          <video
-            autoPlay
-            className="absolute inset-0 h-full w-full object-cover object-top"
-            loop
-            muted
-            playsInline
-            preload="metadata"
-          >
-            <source src="https://www.lyzr.ai/wp-content/uploads/2026/05/One-Studio.-Infinite-Possibilities.mp4" type="video/mp4" />
-          </video>
+          <HeroVideo />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero-canvas/40 via-transparent to-black/20" />
 
           <div className="pointer-events-none absolute top-3.5 left-3.5 sm:top-5 sm:left-5">

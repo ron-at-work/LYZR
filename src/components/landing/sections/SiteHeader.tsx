@@ -80,7 +80,9 @@ export function SiteHeader({
             <img
               alt=""
               className="h-7 w-auto"
+              height={28}
               src="/lyzr-logo.png"
+              width={73}
             />
           </a>
 
@@ -251,7 +253,7 @@ export function SiteHeader({
                             const inner = (
                               <>
                                 <span className="nav-partner-logo">
-                                  <img alt="" className="h-5 w-auto max-w-[72px] object-contain" src={item.logo} />
+                                  <img alt="" className="h-5 w-auto max-w-[72px] object-contain" height={20} src={item.logo} width={72} />
                                 </span>
                                 <span className="text-[12.5px] font-medium text-ink tracking-tight">{item.name}</span>
                               </>
@@ -261,7 +263,7 @@ export function SiteHeader({
                                 {inner}
                               </a>
                             ) : (
-                              <div aria-disabled="true" className="nav-partner-tile is-disabled" key={item.name}>
+                              <div className="nav-partner-tile is-disabled" key={item.name}>
                                 {inner}
                               </div>
                             );
@@ -410,7 +412,7 @@ export function SiteHeader({
         <div className="mobile-nav pointer-events-auto" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Site navigation">
           <div className="mobile-nav-bar">
             <a aria-label="Lyzr home" className="inline-flex items-center h-11 px-1" href="#" onClick={closeMobileNav}>
-              <img alt="" className="h-7 w-auto" src="/lyzr-logo.png" />
+              <img alt="" className="h-7 w-auto" height={28} src="/lyzr-logo.png" width={73} />
             </a>
             <button aria-label="Close menu" className="mobile-nav-btn" onClick={closeMobileNav} type="button">
               <span className="material-symbols-outlined text-[22px]" aria-hidden="true">close</span>

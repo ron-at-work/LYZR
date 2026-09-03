@@ -8,19 +8,19 @@ const STAGE_CARDS = [
   {
     name: "Google I/O 2025",
     title: "Named an Agent2Agent Launch Partner",
-    src: "/trust/google-io-2025.jpg",
+    src: "/trust/google-io-2025.webp",
     alt: "Lyzr featured at Google I/O 2025 as an Agent2Agent (A2A) launch partner",
   },
   {
     name: "AWS Summit NYC",
     title: "Building Live at AWS Summit",
-    src: "/trust/aws-summit-nyc.jpg",
+    src: "/trust/aws-summit-nyc.webp",
     alt: "Lyzr at the AWS Summit showcasing low-code AI agents",
   },
   {
     name: "IBM Think 2025",
     title: "Added to watsonx Orchestrate Catalog",
-    src: "/trust/ibm-think-2025.jpg",
+    src: "/trust/ibm-think-2025.webp",
     alt: "Lyzr announced as an integration in IBM watsonx Orchestrate Agent Catalog",
     objectPosition: "25% center",
   },
@@ -164,6 +164,9 @@ export default function TrustSection() {
                       src={card.src}
                       className="pf-img-default"
                       alt={card.alt}
+                      width={900}
+                      height={600}
+                      loading="lazy"
                       style={"objectPosition" in card ? { objectPosition: card.objectPosition } : undefined}
                     />
                   </div>
@@ -193,7 +196,7 @@ export default function TrustSection() {
               {PRESS_CARDS.map((card) => (
                 <div key={card.className} className={`press-card ${card.className}`}>
                   <div className="press-logo">
-                    <img decoding="async" src={card.logo} alt={card.alt} />
+                    <img decoding="async" src={card.logo} alt={card.alt} width={160} height={40} loading="lazy" />
                   </div>
                   {"stat" in card && card.stat ? (
                     <div className="press-stat">
@@ -218,7 +221,7 @@ export default function TrustSection() {
             {TRUST_BADGES.map((badge) => (
               <div key={badge.label} className="trust-icon-item">
                 <div className="trust-icon-wrap" aria-label={badge.label}>
-                  <img className="trust-badge-svg" src={badge.src} alt="" />
+                  <img className="trust-badge-svg" src={badge.src} alt="" width={48} height={48} loading="lazy" />
                 </div>
                 <span className="trust-icon-label">{badge.label}</span>
               </div>

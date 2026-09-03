@@ -71,8 +71,9 @@ export function WorkforceSection() {
             className="workforce-portrait"
             src={activeAgent.image}
             width={480}
-            height={600}
+            height={464}
             decoding="async"
+            loading="lazy"
           />
           {activeAgent.voice ? (
             <span className="workforce-portrait-live">
@@ -257,7 +258,14 @@ export function WorkforceSection() {
                       onClick={() => selectWorkforceAgent(agent.id)}
                     >
                       <span className="workforce-rail-thumb">
-                        <img alt="" src={agent.image} width={64} height={64} decoding="async" />
+                        <img
+                          alt=""
+                          src={agent.image}
+                          width={64}
+                          height={64}
+                          decoding="async"
+                          loading="lazy"
+                        />
                       </span>
                       <span className="workforce-rail-body">
                         <span className="workforce-rail-name">
