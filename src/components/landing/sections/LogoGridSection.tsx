@@ -39,7 +39,7 @@ export function LogoGridSection() {
         </div>
 
         {/* Mobile: compact marquee + metric strip */}
-        <div className="customer-mobile lg:hidden">
+        <div className="customer-mobile">
           <div aria-hidden className="customer-marquee" role="presentation">
             <div className="customer-marquee-track">
               {loop.map((logo, i) => (
@@ -75,8 +75,8 @@ export function LogoGridSection() {
           </a>
         </div>
 
-        {/* Desktop / tablet: bento logo grid */}
-        <div className="customer-grid hidden lg:grid">
+        {/* Desktop: bento logo grid */}
+        <div className="customer-grid">
           {TRUSTED_LOGOS.map((logo) => (
             <LogoTile
               col={logo.col}
