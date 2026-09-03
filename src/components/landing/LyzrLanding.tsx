@@ -179,20 +179,24 @@ export default function LyzrLanding() {
 
       <main className="w-full">
         <HeroSection agentCount={agentCount} heroRef={heroRef} isDev={isDev} setIsDev={setIsDev} />
-        <ControlPlaneSection />
         <LogoGridSection />
+        <ControlPlaneSection />
+       
         <WhyLyzrSection />
         <AgentStack />
         <AdlcSection />
         <OperatingModelsSection />
         <ProductionizationGap />
         <TestimonialsSection />
-        <CaseStudiesSection />
-        <TrustSection />
-        <FounderSection />
         <WorkforceSection />
+        <CaseStudiesSection />
+
+        <FounderSection />
+      
         <EngagementPathsSection />
         <KnowledgeSection />
+        <TrustSection />
+
         <CtaSection />
       </main>
 
