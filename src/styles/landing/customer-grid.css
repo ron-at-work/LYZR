@@ -151,8 +151,8 @@
 }
 
 .customer-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: none;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 1px;
   padding: 1px;
   overflow: hidden;
@@ -172,8 +172,8 @@
   display: block;
   width: auto;
   height: auto;
-  max-width: 78%;
-  max-height: 42px;
+  max-width: 72%;
+  max-height: 36px;
   object-fit: contain;
   opacity: 0.78;
   filter: grayscale(1);
@@ -191,7 +191,7 @@
   top: 10px;
   right: 10px;
   z-index: 20;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
@@ -231,46 +231,23 @@
 
 .customer-featured {
   position: relative;
-  grid-column: 1 / -1;
-  min-height: 280px;
+  grid-column: 7 / span 2;
+  grid-row: 1 / span 2;
+  min-height: 0;
+  height: 100%;
   overflow: hidden;
   border-radius: 12px;
   background-color: #1a110d;
   color: #f7f7f5;
 }
 
-@media (max-width: 1023px) {
-  .customer-tile {
-    grid-column: auto !important;
-    grid-row: auto !important;
-  }
-}
-
-@media (min-width: 640px) {
-  .customer-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (min-width: 1024px) {
+  .customer-mobile {
+    display: none;
+  }
+
   .customer-grid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
-
-  .customer-logo {
-    max-height: 36px;
-    max-width: 72%;
-  }
-
-  .customer-arrow {
-    display: flex;
-  }
-
-  .customer-featured {
-    grid-column: 7 / span 2;
-    grid-row: 1 / span 2;
-    min-height: 0;
-    height: 100%;
+    display: grid;
   }
 }
 

@@ -505,6 +505,22 @@
   .telemetry-efficiency {
     padding: 0.85rem;
   }
+
+  .control-plane-section {
+    padding-block: clamp(2.5rem, 8vw, 3.5rem);
+  }
+
+  .control-plane-panel {
+    margin-inline: -0.15rem;
+  }
+
+  .control-plane-panel .telemetry-shell {
+    max-width: 100%;
+  }
+
+  .control-plane-panel .telemetry-glow {
+    inset: -4% -2% -8%;
+  }
 }
 
 .telemetry-card:hover {
