@@ -66,6 +66,10 @@ const config: Config = {
         "hero-field": hex("--hero-field"),
         "hero-frame": hex("--hero-frame"),
         "hero-rule": hex("--hero-rule"),
+        "chrome-close": hex("--chrome-close"),
+        "chrome-minimize": hex("--chrome-minimize"),
+        "chrome-maximize": hex("--chrome-maximize"),
+        "on-brand-ink": hex("--on-brand-ink"),
       },
       opacity: {
         4: "0.04",

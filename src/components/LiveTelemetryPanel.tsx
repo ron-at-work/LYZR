@@ -181,13 +181,13 @@ export default function LiveTelemetryPanel() {
         <header className="telemetry-chrome">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex gap-1.5 shrink-0" aria-hidden="true">
-              <span className="telemetry-traffic bg-[#ff5f57]" />
-              <span className="telemetry-traffic bg-[#febc2e]" />
-              <span className="telemetry-traffic bg-[#28c840]" />
+              <span className="telemetry-traffic bg-chrome-close" />
+              <span className="telemetry-traffic bg-chrome-minimize" />
+              <span className="telemetry-traffic bg-chrome-maximize" />
             </div>
             <div className="min-w-0 text-[12px] font-mono leading-none">
-              <span className="text-[#111111] font-medium">lyzr-control-plane</span>
-              <span className="text-[#a3a3a3] hidden sm:inline">
+              <span className="text-ink font-medium">lyzr-control-plane</span>
+              <span className="text-ink-hint hidden sm:inline">
                 {" "}
                 // cluster: us-east-1 // sovereign-vpc-4019
               </span>
@@ -198,7 +198,7 @@ export default function LiveTelemetryPanel() {
               <span className="telemetry-armed-dot" />
               RUNTIME ARMED
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-mono text-[#a3a3a3]">
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-mono text-ink-hint">
               <span className="telemetry-sync-dot" />
               Audit Sync: Active
             </span>
@@ -209,11 +209,11 @@ export default function LiveTelemetryPanel() {
           <div className="telemetry-trace">
             <div className="telemetry-trace-head flex items-start sm:items-center justify-between gap-2 mb-3 sm:mb-4">
               <div className="min-w-0">
-                <p className="text-[12px] sm:text-[12.5px] font-semibold text-[#111111] tracking-tight text-balance leading-snug">
+                <p className="text-[12px] sm:text-[12.5px] font-semibold text-ink tracking-tight text-balance leading-snug">
                   <span className="telemetry-title-short">Orchestration Trace</span>
                   <span className="telemetry-title-full">Active Multi-Agent Orchestration Trace</span>
                 </p>
-                <p className="text-[10.5px] sm:text-[11px] font-mono text-[#a3a3a3] mt-0.5">
+                <p className="text-[10.5px] sm:text-[11px] font-mono text-ink-hint mt-0.5">
                   Live request path · 3 hops resolved
                 </p>
               </div>
@@ -304,18 +304,18 @@ export default function LiveTelemetryPanel() {
           <aside className="telemetry-metrics">
             <div className="telemetry-metric-block">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10.5px] font-mono uppercase tracking-[0.14em] text-[#a3a3a3]">
+                <span className="text-[10.5px] font-mono uppercase tracking-[0.14em] text-ink-hint">
                   Fleet Latency
                 </span>
                 <span className="telemetry-chip">p50 live</span>
               </div>
 
               <div className="flex items-end flex-wrap gap-2.5 mb-4">
-                <span className="text-[34px] sm:text-[40px] leading-none font-semibold tracking-tight text-[#111111] tabular-nums">
+                <span className="text-[34px] sm:text-[40px] leading-none font-semibold tracking-tight text-ink tabular-nums">
                   {latency}
-                  <span className="text-[15px] font-medium text-[#a3a3a3] ml-0.5">ms</span>
+                  <span className="text-[15px] font-medium text-ink-hint ml-0.5">ms</span>
                 </span>
-                <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#f4f4f4] px-2 py-0.5 text-[11px] font-mono font-semibold text-[#525252]">
+                <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-primary-light px-2 py-0.5 text-[11px] font-mono font-semibold text-ink-muted">
                   <svg aria-hidden className="h-3 w-3" fill="none" viewBox="0 0 12 12">
                     <path
                       d="M6 2.5v7M6 2.5 3.5 5M6 2.5 8.5 5"
@@ -363,8 +363,8 @@ export default function LiveTelemetryPanel() {
 
             <div className="telemetry-efficiency">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[12px] font-medium text-[#737373]">Token Burn Efficiency</span>
-                <span className="text-[18px] font-semibold tabular-nums text-[#111111] tracking-tight">
+                <span className="text-[12px] font-medium text-ink-faint">Token Burn Efficiency</span>
+                <span className="text-[18px] font-semibold tabular-nums text-ink tracking-tight">
                   {efficiency}%
                 </span>
               </div>
@@ -377,10 +377,10 @@ export default function LiveTelemetryPanel() {
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono text-[#a3a3a3]">
+                <span className="text-[11px] font-mono text-ink-hint">
                   12.4M sovereign tokens today
                 </span>
-                <span className="text-[10.5px] font-mono uppercase tracking-wider text-[#525252]">
+                <span className="text-[10.5px] font-mono uppercase tracking-wider text-ink-muted">
                   Optimal
                 </span>
               </div>
