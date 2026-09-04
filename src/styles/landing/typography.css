@@ -7,11 +7,12 @@
   src: url("/fonts/material-symbols-outlined.ttf") format("truetype");
 }
 
+/* Emphasis stays in the same sans family - no serif swap */
 .font-editorial-italic {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
   font-style: italic;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 .material-symbols-outlined {

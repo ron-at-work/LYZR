@@ -216,13 +216,11 @@ export function WorkforceSection() {
         <div className="max-w-container-max mx-auto page-pad">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-24 mb-space-40">
             <div className="max-w-2xl">
-              <span className="text-[11.5px] font-mono text-primary uppercase tracking-widest font-semibold block mb-2">Turnkey Workforce</span>
-              <h2 className="font-display display-h2 font-medium text-text-primary">
-                Ready-to-deploy{" "}
-                <span className="font-editorial-italic text-primary">autonomous agents.</span>
+              <h2 className="font-display display-h2 font-semibold text-text-primary">
+                Ready-to-deploy autonomous agents.
               </h2>
               <p className="text-[16px] text-text-secondary mt-space-12 max-w-[52ch]">
-                Domain-trained coworkers for every function — chat, tools, and <em className="not-italic text-primary font-medium">live voice</em> with telephony in Agent Studio.
+                Domain-trained coworkers for every function: chat, tools, and live voice with telephony in Agent Studio.
               </p>
             </div>
             <div className="flex flex-col items-start lg:items-end gap-3 shrink-0">

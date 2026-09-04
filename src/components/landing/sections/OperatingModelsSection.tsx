@@ -8,13 +8,12 @@ export function OperatingModelsSection() {
 
   return (
     <section className="w-full max-w-container-max mx-auto page-pad section-y" id="operating-models">
-      <div className="text-center max-w-3xl mx-auto mb-space-48">
-        <span className="text-[11.5px] font-mono text-primary uppercase tracking-widest font-semibold block mb-2">Operating Models</span>
-        <h2 className="font-display display-h2 font-medium text-text-primary">
-          Three ways enterprises <span className="font-editorial-italic text-primary display-em">use the platform.</span>
+      <div className="max-w-3xl mb-space-48">
+        <h2 className="font-display display-h2 font-semibold text-text-primary">
+          Three ways enterprises use the platform.
         </h2>
         <p className="text-[16px] text-text-secondary mt-space-12">
-          The control plane is the foundation. From there, teams select the operational footprint matching their cloud boundary and team maturity.
+          The control plane is the foundation. From there, pick the footprint that matches your cloud boundary and team.
         </p>
       </div>
       <div className="om-tabs" role="tablist" aria-label="Operating models">
@@ -68,8 +67,7 @@ export function OperatingModelsSection() {
                     </span>
                   </div>
                   <h3 className="text-[22px] font-semibold text-text-primary mb-3 leading-snug text-left">
-                    {model.title}{" "}
-                    <span className="font-editorial-italic text-[28px]">{model.titleEm}</span>
+                    {model.title} {model.titleEm}
                   </h3>
                   <p className="text-[14px] text-text-secondary leading-relaxed mb-space-24 text-left">
                     {model.description}

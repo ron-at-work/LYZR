@@ -10,14 +10,11 @@ export function AdlcSection() {
     <section className="w-full bg-brand-ink border-y border-border-crisp section-y">
       <div className="max-w-container-max mx-auto page-pad">
         <div className="max-w-3xl mb-space-48">
-          <span className="text-[11.5px] font-mono text-primary uppercase tracking-widest font-semibold block mb-2">End-to-End Lifecycle</span>
-          <h2 className="font-display display-h2 font-medium text-text-primary">
-            Lyzr covers everything across the{" "}
-            <span className="font-editorial-italic display-em text-primary">ADLC</span>{" "}
-            <span className="font-editorial-italic display-em text-text-secondary">cycle.</span>
+          <h2 className="font-display display-h2 font-semibold text-text-primary">
+            Design to production in one lifecycle.
           </h2>
           <p className="text-[16px] text-text-secondary mt-space-12 leading-relaxed">
-            From initial logic blueprint to sovereign deployment and runtime governance, manage the entire Agent Development Lifecycle seamlessly.
+            From blueprint to sovereign deployment and runtime governance. The full agent development lifecycle on one platform.
           </p>
         </div>
         <div className="adlc-bento mb-space-32">
@@ -36,7 +33,7 @@ export function AdlcSection() {
                 <div className="adlc-card-inner bg-surface-card">
                   <div>
                     <div className="flex justify-between items-center mb-space-16">
-                      <span className="adlc-card-stage text-[12px] font-mono font-bold text-primary">STAGE {stage.stage}</span>
+                      <span className="adlc-card-stage text-[12px] font-mono font-bold text-primary">{stage.title}</span>
                       <span className="adlc-card-icon material-symbols-outlined text-text-muted text-[20px]" aria-hidden="true">
                         {stage.icon}
                       </span>

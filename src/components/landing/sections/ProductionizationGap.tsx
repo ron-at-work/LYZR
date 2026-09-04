@@ -95,10 +95,8 @@ export function ProductionizationGap() {
 
       <div className="prod-gap-inner max-w-container-max mx-auto page-pad">
         <header className="prod-gap-header">
-          <span className="prod-gap-kicker">— The Productionization Gap —</span>
           <h2 className="prod-gap-title">
-            Your agent is built.{" "}
-            <em className="font-editorial-italic">Now comes the hard part.</em>
+            Your agent is built. Now comes the hard part.
           </h2>
           <p className="prod-gap-lede">
             Between a working prototype and a production agent lies a valley of death. Most projects never cross it. Lyzr builds the bridge.
@@ -106,7 +104,7 @@ export function ProductionizationGap() {
           <div className="prod-gap-stat" role="group" aria-label="Industry reality">
             <span className="prod-gap-stat-value">~70%</span>
             <span className="prod-gap-stat-copy">
-              of enterprise AI pilots stall before production — not for model quality, but for everything around the model.
+              of enterprise AI pilots stall before production, not for model quality, but for everything around the model.
             </span>
           </div>
         </header>
@@ -269,7 +267,7 @@ export function ProductionizationGap() {
         <div className="prod-gap-bridge-cta">
           <p className="prod-gap-bridge-cta-copy">
             Most platforms stop at the demo.{" "}
-            <em className="font-editorial-italic">Lyzr ships you across the valley.</em>
+            <strong className="font-semibold text-volt">Lyzr ships you across the valley.</strong>
           </p>
           <a className="prod-gap-bridge-cta-btn" href="https://www.lyzr.ai/book-demo/" {...NAV_EXT}>
             Cross the gap with Lyzr

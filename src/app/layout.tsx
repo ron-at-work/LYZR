@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, JetBrains_Mono, Outfit } from "next/font/google";
+import { JetBrains_Mono, Outfit, Syne } from "next/font/google";
 import "./globals.css";
 import "../styles/landing/index.css";
 
@@ -10,10 +10,9 @@ const outfit = Outfit({
   display: "swap",
 });
 
-const cormorant = Cormorant_Garamond({
+const syne = Syne({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
@@ -26,9 +25,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lyzr — The Enterprise Control Plane for AI Agents",
+  title: "Lyzr | Built to ship agents.",
   description:
-    "Agents built on AWS Bedrock, Azure AI, LangChain, AutoGen, or custom stacks—governed, observed, and routed through a single sovereign control plane.",
+    "The enterprise control plane for AI agents. Design, build, simulate, deploy, and govern secure agents in your own environment.",
 };
 
 export default function RootLayout({
@@ -37,10 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${cormorant.variable} ${jetbrains.variable}`}>
-      <body className="bg-surface-canvas font-sans text-text-primary antialiased">
-        {children}
-      </body>
+    <html lang="en" className={`${outfit.variable} ${syne.variable} ${jetbrains.variable}`}>
+      <body className="bg-[#f3f1ec] font-sans text-[#161616] antialiased">{children}</body>
     </html>
   );
 }

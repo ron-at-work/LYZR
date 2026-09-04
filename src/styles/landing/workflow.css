@@ -1,0 +1,238 @@
+/* Agent lifecycle workflow board */
+.workflow-board {
+  width: 100%;
+  border: 1px solid var(--border-crisp);
+  border-radius: 1.35rem;
+  background: var(--surface-card);
+  overflow: hidden;
+}
+
+.workflow-board--hero {
+  box-shadow: 0 18px 50px rgb(12 13 12 / 0.08);
+}
+
+.workflow-board-rail {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-bottom: 1px solid var(--border-crisp);
+  background: var(--surface-subtle);
+}
+
+.workflow-board-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.9rem 0.85rem 1rem;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  transition:
+    background-color 0.2s cubic-bezier(0.32, 0.72, 0, 1),
+    color 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.workflow-board-step:hover {
+  color: var(--ink);
+}
+
+.workflow-board-step.is-active {
+  background: var(--surface-card);
+  color: var(--ink);
+}
+
+.workflow-board-num {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-hint);
+}
+
+.workflow-board-step.is-active .workflow-board-num {
+  color: var(--ink);
+}
+
+.workflow-board-label {
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.workflow-board-connector {
+  display: none;
+}
+
+.workflow-board-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .workflow-board-panel {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 1.75rem;
+    padding: 1.5rem 1.5rem 1.6rem;
+    align-items: center;
+  }
+}
+
+.workflow-board-product {
+  display: inline-flex;
+  align-items: center;
+  height: 1.55rem;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  background: rgb(210 255 0 / 0.28);
+  border: 1px solid rgb(184 230 0 / 0.55);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.workflow-board-title {
+  margin: 0.7rem 0 0;
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.workflow-board-body {
+  margin: 0.65rem 0 0;
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.workflow-stage-frame {
+  border: 1px solid var(--border-crisp);
+  border-radius: 1rem;
+  background: #0f100f;
+  color: #f7f8f6;
+  overflow: hidden;
+  min-height: 210px;
+}
+
+.workflow-stage-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.workflow-stage-chrome span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.18);
+}
+
+.workflow-stage-chrome span:nth-child(1) {
+  background: #ff5f57;
+}
+.workflow-stage-chrome span:nth-child(2) {
+  background: #febc2e;
+}
+.workflow-stage-chrome span:nth-child(3) {
+  background: #28c840;
+}
+
+.workflow-stage-chrome em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.45);
+}
+
+.workflow-stage-body {
+  padding: 1.15rem 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.wf-line {
+  font-size: 12.5px;
+  color: rgb(255 255 255 / 0.55);
+}
+
+.wf-line--prompt {
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  color: rgb(255 255 255 / 0.82);
+}
+
+.wf-cards,
+.wf-nodes,
+.wf-pipeline,
+.wf-grid-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.wf-mini,
+.wf-nodes span,
+.wf-pipeline span,
+.wf-grid-mini span {
+  display: inline-flex;
+  align-items: center;
+  height: 2rem;
+  padding: 0 0.7rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.05);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.8);
+}
+
+.wf-nodes span.is-volt,
+.wf-pipeline span.is-volt,
+.wf-grid-mini span.is-volt {
+  background: #d2ff00;
+  border-color: #b8e600;
+  color: #0c0d0c;
+}
+
+.wf-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.wf-bars i {
+  display: block;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d2ff00, rgb(210 255 0 / 0.25));
+}
+
+@media (max-width: 720px) {
+  .workflow-board-rail {
+    grid-template-columns: repeat(5, minmax(4.5rem, 1fr));
+    overflow-x: auto;
+  }
+
+  .workflow-board-step {
+    min-width: 4.75rem;
+    padding: 0.75rem 0.55rem;
+  }
+
+  .workflow-board-label {
+    font-size: 12px;
+  }
+}

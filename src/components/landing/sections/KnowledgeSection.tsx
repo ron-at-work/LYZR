@@ -8,10 +8,8 @@ export function KnowledgeSection() {
         <div className="max-w-container-max mx-auto page-pad">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-16 mb-space-48">
             <div className="min-w-0 max-w-3xl">
-              <span className="text-[11.5px] font-mono text-primary uppercase tracking-widest font-semibold block mb-2">Knowledge Base</span>
-              <h2 className="font-display display-h2 font-medium text-text-primary">
-                Enterprise blueprints &amp;{" "}
-                <span className="font-editorial-italic text-primary display-em">production playbooks.</span>
+              <h2 className="font-display display-h2 font-semibold text-text-primary">
+                Enterprise blueprints and production playbooks.
               </h2>
             </div>
             <div className="shrink-0">

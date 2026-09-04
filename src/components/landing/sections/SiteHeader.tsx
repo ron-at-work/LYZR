@@ -52,7 +52,7 @@ export function SiteHeader({
       {bannerOpen && (
         <div className="pointer-events-auto relative bg-ink-banner site-announce text-center text-on-primary/90 tracking-tight">
           <span className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 pr-1">
-            <span className="site-announce-copy">New: Lyzr Control Plane — govern every agent across AWS, Azure, and LangChain.</span>
+            <span className="site-announce-copy">New: Lyzr Control Plane. Govern every agent across AWS, Azure, and LangChain.</span>
             <span className="site-announce-copy-short">New: Lyzr Control Plane is live.</span>
             <a className="font-medium text-on-primary underline underline-offset-2 hover:text-on-primary/70 transition-colors" href="#control-plane" onClick={closeMobileNav}>
               Learn more
@@ -135,7 +135,7 @@ export function SiteHeader({
                         <a className="nav-spotlight group/link" href="https://www.lyzr.ai/control-plane/" {...NAV_EXT}>
                           <span className="nav-spotlight-kicker">New</span>
                           <span className="nav-spotlight-title">Control Plane</span>
-                          <span className="nav-spotlight-copy">Govern every agent across AWS, Azure, and LangChain — one policy layer.</span>
+                          <span className="nav-spotlight-copy">Govern every agent across AWS, Azure, and LangChain. One policy layer.</span>
                           <span className="nav-spotlight-cta">
                             Explore Control Plane
                             <svg aria-hidden className="h-3 w-3 transition-transform group-hover/link:translate-x-0.5" fill="none" viewBox="0 0 12 12">

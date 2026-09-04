@@ -4,6 +4,7 @@
 @import "./nav.css";
 @import "./mobile-nav.css";
 @import "./hero.css";
+@import "./workflow.css";
 @import "./telemetry.css";
 @import "./customer-grid.css";
 @import "./knowledge-base.css";
@@ -17,3 +18,5 @@
 @import "./workforce.css";
 @import "./site-footer.css";
 @import "./not-found.css";
+@import "./tour.css";
+@import "./cinematic.css";

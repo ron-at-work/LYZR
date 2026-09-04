@@ -25,12 +25,11 @@ export function LogoGridSection() {
     <section className="w-full border-y border-border-crisp bg-surface-canvas py-space-48 md:py-space-64">
       <div className="max-w-container-max mx-auto page-pad">
         <div className="max-w-3xl mb-space-24 md:mb-space-32">
-          <h2 className="font-display display-h2 font-medium text-text-primary">
-            Governing autonomous agents at the world&apos;s most ambitious{" "}
-            <span className="font-semibold">enterprises and financial institutions.</span>
+          <h2 className="font-display display-h2 font-semibold text-text-primary max-w-[22ch]">
+            Trusted by teams shipping agents in regulated production.
           </h2>
           <p className="text-[15px] md:text-[16px] text-text-secondary mt-space-12 leading-relaxed max-w-2xl">
-            From global systems integrators to regulated banks and airlines — production-grade agent fleets run on Lyzr every day.
+            Systems integrators, banks, and airlines run production-grade agent fleets on Lyzr every day.
           </p>
           <a className="inline-flex items-center gap-1 text-[14px] font-medium text-text-muted hover:text-text-primary transition-colors mt-space-16" href="#testimonials">
             Read customer stories
