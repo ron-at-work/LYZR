@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useSound } from "../motion/SoundProvider";
 
 const LINKS = [
   { href: "#about", label: "About" },
@@ -20,7 +21,7 @@ type Props = {
 
 export function CinematicNav({ open, onToggle, onClose }: Props) {
   const reduce = useReducedMotion();
-  const [muted, setMuted] = useState(true);
+  const { muted, toggleMuted } = useSound();
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -47,14 +48,20 @@ export function CinematicNav({ open, onToggle, onClose }: Props) {
     <>
       <header className={`cine-nav${dark ? " is-dark" : ""}`}>
         <a className="cine-logo" href="#top" onClick={onClose}>
-          <Image alt="Lyzr" height={28} src="/lyzr-mark.png" width={28} />
+          <Image
+            alt="Lyzr"
+            className="cine-logo-mark"
+            height={28}
+            src={dark ? "/lyzr-mark-nav-light.png" : "/lyzr-mark-nav-dark.png"}
+            width={28}
+          />
           <span>Lyzr</span>
         </a>
         <div className="cine-nav-actions">
           <button
-            aria-label={muted ? "Unmute" : "Mute"}
+            aria-label={muted ? "Unmute sound" : "Mute sound"}
             className="cine-sound"
-            onClick={() => setMuted((v) => !v)}
+            onClick={toggleMuted}
             type="button"
           >
             <span className={muted ? "is-muted" : ""} />

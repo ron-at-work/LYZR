@@ -16,10 +16,12 @@ type Props = {
 
 type Shard = {
   mesh: THREE.Object3D;
+  /** Centroid in group space (geometry still includes this offset). */
   homePos: THREE.Vector3;
-  explodeDir: THREE.Vector3;
-  spinAxis: THREE.Vector3;
-  spinSpeed: number;
+  /** Extra radial push multiplier (slight depth variance, Trionn-style). */
+  expandMul: number;
+  /** Tiny z lift so plates separate in depth without tumbling. */
+  depthLift: number;
   delay: number;
   shapeIdx: number;
   isEdge?: boolean;
@@ -27,7 +29,8 @@ type Shard = {
 
 /**
  * 3D Lyzr mark only (inner glyph — no plate/squircle).
- * Warm-white theme: dark ink glass that shatters on scroll / hold.
+ * Warm-white theme: dark ink glass that expands on scroll like Trionn —
+ * silhouette stays, gaps open (radial fail-open), no explode tumble.
  */
 export function HeroMark({ className, blast = false }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -56,6 +59,7 @@ export function HeroMark({ className, blast = false }: Props) {
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
+      preserveDrawingBuffer: true,
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
     renderer.setSize(w, h, false);
@@ -66,6 +70,9 @@ export function HeroMark({ className, blast = false }: Props) {
     renderer.domElement.style.display = "block";
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
+    // Ensure canvas isn't clipped / zero-sized in some browsers
+    renderer.domElement.style.position = "absolute";
+    renderer.domElement.style.inset = "0";
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -134,105 +141,84 @@ export function HeroMark({ className, blast = false }: Props) {
     const geos: THREE.BufferGeometry[] = [floorGeo];
     const mats: THREE.Material[] = [inkMat, edgeMat, floorMat];
 
-    const pushShard = (
-      mesh: THREE.Object3D,
-      shapeIdx: number,
-      dir: THREE.Vector3,
-      isEdge = false,
-    ) => {
+    const pushShard = (mesh: THREE.Object3D, shapeIdx: number, isEdge = false) => {
       shards.push({
         mesh,
         homePos: new THREE.Vector3(0, 0, 0),
-        explodeDir: dir.clone().normalize(),
-        spinAxis: new THREE.Vector3(
-          Math.random() - 0.5,
-          Math.random() - 0.5,
-          Math.random() - 0.5,
-        ).normalize(),
-        spinSpeed: isEdge ? 0 : (Math.random() - 0.5) * 0.9,
-        delay: isEdge ? 0 : Math.random() * 0.2,
+        expandMul: isEdge ? 1 : 0.96 + Math.random() * 0.08,
+        depthLift: isEdge ? 0 : (Math.random() - 0.5) * 0.22,
+        delay: isEdge ? 0 : shapeIdx * 0.012,
         shapeIdx,
         isEdge,
       });
     };
 
-    const shatterExtruded = (geo: THREE.ExtrudeGeometry, shapeIdx: number) => {
+    /** Each SVG path = one solid plate. Radial fail-open keeps the silhouette (Trionn). */
+    const addExtrudedPlate = (geo: THREE.ExtrudeGeometry, shapeIdx: number) => {
       geos.push(geo);
       geo.computeBoundingBox();
-      const box = geo.boundingBox!;
-      const size = new THREE.Vector3();
-      box.getSize(size);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
+      geo.computeVertexNormals();
+      const mat = inkMat.clone();
+      mats.push(mat);
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.frustumCulled = false;
+      group.add(mesh);
+      pushShard(mesh, shapeIdx);
 
-      const pos = geo.attributes.position.array as Float32Array;
-      const nor = geo.attributes.normal.array as Float32Array;
-      const triCount = pos.length / 9;
-      const gx = 3;
-      const gy = 4;
-      const gz = 2;
-      type Bucket = { pos: number[]; nor: number[]; cx: number; cy: number; cz: number; n: number };
-      const buckets = new Map<string, Bucket>();
-
-      for (let i = 0; i < triCount; i++) {
-        const t = 9 * i;
-        const tx = (pos[t] + pos[t + 3] + pos[t + 6]) / 3;
-        const ty = (pos[t + 1] + pos[t + 4] + pos[t + 7]) / 3;
-        const tz = (pos[t + 2] + pos[t + 5] + pos[t + 8]) / 3;
-        const ix = Math.min(gx - 1, Math.max(0, Math.floor(((tx - box.min.x) / (size.x || 1)) * gx)));
-        const iy = Math.min(gy - 1, Math.max(0, Math.floor(((ty - box.min.y) / (size.y || 1)) * gy)));
-        const iz = Math.min(gz - 1, Math.max(0, Math.floor(((tz - box.min.z) / (size.z || 1)) * gz)));
-        const key = `${ix},${iy},${iz}`;
-        let b = buckets.get(key);
-        if (!b) {
-          b = { pos: [], nor: [], cx: 0, cy: 0, cz: 0, n: 0 };
-          buckets.set(key, b);
-        }
-        for (let k = 0; k < 9; k++) {
-          b.pos.push(pos[t + k]);
-          b.nor.push(nor[t + k]);
-        }
-        b.cx += tx;
-        b.cy += ty;
-        b.cz += tz;
-        b.n += 1;
-      }
-
-      buckets.forEach((b) => {
-        if (!b.n) return;
-        b.cx /= b.n;
-        b.cy /= b.n;
-        b.cz /= b.n;
-        const shardGeo = new THREE.BufferGeometry();
-        shardGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(b.pos), 3));
-        shardGeo.setAttribute("normal", new THREE.BufferAttribute(new Float32Array(b.nor), 3));
-        geos.push(shardGeo);
-        const mat = inkMat.clone();
-        mats.push(mat);
-        const mesh = new THREE.Mesh(shardGeo, mat);
-        group.add(mesh);
-
-        const mx = b.cx - center.x;
-        const my = b.cy - center.y;
-        const mz = b.cz - center.z;
-        const len = Math.hypot(mx, my, mz) || 1;
-        pushShard(
-          mesh,
-          shapeIdx,
-          new THREE.Vector3(
-            mx / len + (Math.random() - 0.5) * 0.45,
-            // Bias downward so pieces feel like they fall apart while scrolling down
-            my / len - 0.35 - Math.random() * 0.55,
-            mz / len + 0.45 + Math.random() * 0.5,
-          ),
-        );
-      });
-
-      const edges = new THREE.EdgesGeometry(geo, 18);
+      const edges = new THREE.EdgesGeometry(geo, 24);
       geos.push(edges);
       const edge = new THREE.LineSegments(edges, edgeMat);
       group.add(edge);
-      pushShard(edge, shapeIdx, new THREE.Vector3(), true);
+      pushShard(edge, shapeIdx, true);
+    };
+
+    const state = {
+      scrollProgress: 0,
+      targetScrollProgress: 0,
+      mergeProgress: 0,
+      targetMerge: 0,
+      // About path: right → up-center → right → down-center (world units)
+      pathX: 0,
+      pathY: 0,
+      targetPathX: 0,
+      targetPathY: 0,
+      // Stay assembled on hero — scatter only from scroll (not an intro blast)
+      introAmt: 0,
+      clickBurst: 0,
+      holdTime: 0,
+      holding: false,
+      vibrateAmt: 0,
+      vibratePhase: 0,
+      rotX: 0.18,
+      rotY: 0.28,
+      mouseX: 0,
+      mouseY: 0,
+      baseY: 0,
+      baseScale: 1,
+      built: false,
+    };
+
+    /** Piecewise path while About is on screen — clears the left copy. */
+    const sampleAboutPath = (t: number) => {
+      const pts = [
+        { t: 0, x: 0.85, y: 0 }, // clear copy as soon as About pins
+        { t: 0.22, x: 1.45, y: 0.08 }, // right shift
+        { t: 0.45, x: 0.25, y: 0.9 }, // up center
+        { t: 0.7, x: 1.5, y: 0.12 }, // right again
+        { t: 1, x: 0.3, y: -0.95 }, // down center
+      ];
+      const clamped = Math.max(0, Math.min(1, t));
+      let i = 0;
+      while (i < pts.length - 1 && pts[i + 1].t < clamped) i += 1;
+      const a = pts[i];
+      const b = pts[Math.min(i + 1, pts.length - 1)];
+      const span = Math.max(0.0001, b.t - a.t);
+      const u = (clamped - a.t) / span;
+      const e = u * u * (3 - 2 * u);
+      return {
+        x: a.x + (b.x - a.x) * e,
+        y: a.y + (b.y - a.y) * e,
+      };
     };
 
     // Glyph only — never the plate/squircle
@@ -252,7 +238,7 @@ export function HeroMark({ className, blast = false }: Props) {
         let shapeIdx = 0;
         data.paths.forEach((path) => {
           SVGLoader.createShapes(path).forEach((shape) => {
-            shatterExtruded(new THREE.ExtrudeGeometry(shape, extrude), shapeIdx++);
+            addExtrudedPlate(new THREE.ExtrudeGeometry(shape, extrude), shapeIdx++);
           });
         });
 
@@ -268,91 +254,155 @@ export function HeroMark({ className, blast = false }: Props) {
           if (obj instanceof THREE.Mesh || obj instanceof THREE.LineSegments) {
             obj.geometry.translate(-center.x, -center.y, -center.z);
             obj.geometry.computeBoundingBox();
+            obj.geometry.computeBoundingSphere();
+            obj.frustumCulled = false;
           }
         });
 
         shards.forEach((s) => {
-          s.homePos.set(0, 0, 0);
-          if (s.isEdge) {
-            s.explodeDir.set(0, 0, 0);
-            return;
-          }
-          const geo = (s.mesh as THREE.Mesh).geometry;
+          const geo =
+            s.mesh instanceof THREE.Mesh || s.mesh instanceof THREE.LineSegments
+              ? s.mesh.geometry
+              : null;
+          if (!geo) return;
           geo.computeBoundingBox();
           const c = new THREE.Vector3();
           geo.boundingBox!.getCenter(c);
-          const len = c.length() || 1;
-          s.explodeDir
-            .set(
-              c.x / len + (Math.random() - 0.5) * 0.4,
-              c.y / len - 0.35 - Math.random() * 0.5,
-              c.z / len + 0.4 + Math.random() * 0.45,
-            )
-            .normalize();
+          s.homePos.copy(c);
+          if (s.isEdge) {
+            s.expandMul = 1;
+            s.depthLift = 0;
+            return;
+          }
+          const r = Math.hypot(c.x, c.y);
+          // Outer plates open a touch more than the core — still one silhouette
+          s.expandMul = 0.96 + Math.min(0.18, r * 0.001) + Math.random() * 0.04;
+          s.depthLift = (Math.random() - 0.5) * 0.2;
         });
 
         const s = 2.55 / Math.max(size.x, size.y, 0.001);
+        state.baseScale = s;
+        state.built = true;
         group.scale.set(s, -s, s);
         // Pivot = visual center → rotate in place
         group.position.set(0, 0.08, 0);
         state.baseY = 0.08;
+        mount.style.opacity = "1";
+        mount.style.zIndex = "3";
+        mount.dataset.shards = String(shards.length);
+        mount.dataset.size = `${size.x.toFixed(1)}x${size.y.toFixed(1)}`;
+        mount.dataset.scale = String(s);
 
+        // Force one lit frame so the hero mark is definitely painted
         cubeCamera.update(renderer, scene);
+        renderer.render(scene, camera);
         ScrollTrigger.refresh();
       },
       undefined,
       () => console.warn("glyph svg failed"),
     );
 
-    const state = {
-      scrollProgress: 0,
-      targetScrollProgress: 0,
-      introAmt: reduce ? 0 : 1,
-      clickBurst: 0,
-      holdTime: 0,
-      holding: false,
-      vibrateAmt: 0,
-      vibratePhase: 0,
-      rotX: 0.18,
-      rotY: 0.28,
-      mouseX: 0,
-      mouseY: 0,
-      baseY: 0,
-    };
-
     const hero = document.getElementById("top");
     const about = document.getElementById("about");
-    let st: ScrollTrigger | null = null;
-    let fadeSt: ScrollTrigger | null = null;
-    if (hero && !reduce) {
-      // Stay mostly assembled through About so copy can sit on the cream + mark scene.
-      // Soft scatter only near the end of About, then fade out.
-      st = ScrollTrigger.create({
-        trigger: hero,
-        start: "top top",
-        endTrigger: about ?? hero,
-        end: about ? "bottom top" : "bottom top",
-        scrub: 0.85,
-        onUpdate: (self) => {
-          const raw = self.progress;
-          // Hold form until ~62% of hero→about, then scatter
-          state.targetScrollProgress =
-            raw < 0.62 ? 0 : Math.min(1, (raw - 0.62) / 0.38);
-        },
-      });
+    const vision = document.getElementById("vision");
+    const triggers: ScrollTrigger[] = [];
 
-      if (about && mount) {
-        mount.style.opacity = "1";
-        fadeSt = ScrollTrigger.create({
-          trigger: about,
-          start: "center top",
-          end: "bottom top",
-          scrub: 0.55,
+    if (hero && !reduce) {
+      // 1) Hero → end of About: radial fail-open 0 → 1 (max as About finishes)
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: hero,
+          start: "top top",
+          endTrigger: about ?? hero,
+          end: about ? "bottom bottom" : "bottom top",
+          scrub: 0.45,
           onUpdate: (self) => {
-            mount.style.opacity = String(1 - self.progress * 0.92);
+            const t = self.progress;
+            state.targetScrollProgress = 1 - (1 - t) * (1 - t);
+            // Always clear merge while on the hero→about open arc
+            state.targetMerge = 0;
+            if (t < 0.98) state.mergeProgress = Math.min(state.mergeProgress, 0.02);
           },
-        });
+        }),
+      );
+
+      // 1b) About pin window: orbit path so copy on the left stays readable
+      // Match ManifestoSection pin length so the mark clears text for the whole read.
+      if (about) {
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: about,
+            start: "top top",
+            end: () => `+=${Math.round(window.innerHeight * 2.6)}`,
+            scrub: 0.55,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const { x, y } = sampleAboutPath(self.progress);
+              state.targetPathX = x;
+              state.targetPathY = y;
+            },
+            onLeaveBack: () => {
+              state.targetPathX = 0;
+              state.targetPathY = 0;
+            },
+          }),
+        );
       }
+
+      // 2) About exit → Vision: reassemble (open 1 → 0) + ease path home
+      if (about && vision) {
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: about,
+            start: "bottom bottom",
+            endTrigger: vision,
+            end: "top 65%",
+            scrub: 0.55,
+            onUpdate: (self) => {
+              const t = self.progress;
+              state.targetScrollProgress = Math.max(0, 1 - t * t);
+              state.targetMerge = 0;
+              const end = sampleAboutPath(1);
+              state.targetPathX = end.x * (1 - t);
+              state.targetPathY = end.y * (1 - t);
+            },
+          }),
+        );
+
+        // 3) Across Focused vision / Measured execution: merge into cream bg
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: vision,
+            start: "top 65%",
+            end: "bottom top",
+            scrub: 0.6,
+            onUpdate: (self) => {
+              state.targetScrollProgress = 0;
+              state.targetMerge = self.progress;
+              state.targetPathX = 0;
+              state.targetPathY = 0;
+            },
+          }),
+        );
+      } else if (about) {
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: about,
+            start: "bottom center",
+            end: "bottom top",
+            scrub: 0.45,
+            onUpdate: (self) => {
+              state.targetScrollProgress = Math.max(0, 1 - self.progress);
+              state.targetMerge = self.progress;
+              state.targetPathX *= 1 - self.progress;
+              state.targetPathY *= 1 - self.progress;
+            },
+          }),
+        );
+      }
+
+      mount.style.opacity = "1";
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     }
 
     const onMove = (e: PointerEvent) => {
@@ -383,63 +433,101 @@ export function HeroMark({ className, blast = false }: Props) {
         state.clickBurst = Math.max(0, state.clickBurst - 0.025);
       }
 
-      state.scrollProgress += (state.targetScrollProgress - state.scrollProgress) * 0.06;
+      state.scrollProgress += (state.targetScrollProgress - state.scrollProgress) * 0.12;
+      state.mergeProgress += (state.targetMerge - state.mergeProgress) * 0.09;
+      state.pathX += (state.targetPathX - state.pathX) * 0.14;
+      state.pathY += (state.targetPathY - state.pathY) * 0.14;
       if (state.introAmt > 0.001) state.introAmt *= 0.975;
       else state.introAmt = 0;
 
       const holdEnergy = state.scrollProgress < 0.12 ? state.clickBurst : 0;
       const p = Math.max(state.scrollProgress, holdEnergy, state.introAmt);
+      const m = state.mergeProgress;
 
       // Gentle yaw around the mark's own center (not orbit)
-      state.rotY += reduce ? 0 : 0.0028;
-      const targetRotX = 0.12 + 0.14 * state.mouseY;
-      const targetRotY = state.rotY + 0.16 * state.mouseX;
+      state.rotY += reduce ? 0 : 0.0028 * (1 - m * 0.7);
+      const targetRotX = 0.12 + 0.14 * state.mouseY * (1 - m);
+      const targetRotY = state.rotY + 0.16 * state.mouseX * (1 - m);
       group.rotation.x += (targetRotX - group.rotation.x) * 0.06;
       group.rotation.y += (targetRotY - group.rotation.y) * 0.06;
 
-      // Soft settle downward with scatter (follows the page exit)
-      group.position.y = state.baseY + p * -0.85;
+      // Soft settle + About orbit path (right → up → right → down)
+      if (state.built) {
+        group.position.x = state.pathX * (1 - m);
+        group.position.y = state.baseY + state.pathY * (1 - m) - m * 0.55 - p * 0.08;
+        group.position.z = -m * 2.4;
+        const bs = state.baseScale;
+        // Slight overall grow while open (Trionn “fails open”)
+        const openScale = 1 + p * 0.12;
+        const mergeScale = (1 - m * 0.42) * openScale;
+        group.scale.set(bs * mergeScale, -bs * mergeScale, bs * mergeScale);
+      }
 
       state.vibratePhase += 1.1;
+      // How far the silhouette opens (1 = assembled, ~2.6 = fully failed-open)
+      const openAmt = 1.55;
       shards.forEach((e) => {
-        const local = Math.max(0, p - e.delay);
-        const dist = 3.4 * local;
-        const a = e.shapeIdx * ((2 * Math.PI) / 4);
-        const idleX = 0.008 * Math.sin(0.4 * t + a) * (1 - p);
-        const idleY = 0.006 * Math.cos(0.35 * t + a) * (1 - p);
-        const vib = 0.014 * state.vibrateAmt * (1 - state.clickBurst);
+        const local = Math.max(0, Math.min(1, (p - e.delay) / Math.max(0.001, 1 - e.delay)));
+        // Smoothstep for premium ease
+        const eased = local * local * (3 - 2 * local);
+        const scale = 1 + openAmt * eased * e.expandMul;
+        const idleX = 0.006 * Math.sin(0.35 * t + e.shapeIdx) * (1 - p) * (1 - m);
+        const idleY = 0.005 * Math.cos(0.3 * t + e.shapeIdx) * (1 - p) * (1 - m);
+        const vib = 0.01 * state.vibrateAmt * (1 - state.clickBurst);
         const vx = Math.sin(state.vibratePhase + 18 * e.delay) * vib;
         const vy = Math.cos(1.3 * state.vibratePhase + e.shapeIdx) * vib;
 
+        // Radial expand: visualCentroid = homePos * scale
         e.mesh.position.set(
-          e.homePos.x + e.explodeDir.x * dist + idleX + vx,
-          e.homePos.y + e.explodeDir.y * dist + idleY + vy,
-          e.homePos.z + e.explodeDir.z * dist,
+          e.homePos.x * (scale - 1) + idleX + vx,
+          e.homePos.y * (scale - 1) + idleY + vy,
+          e.homePos.z * (scale - 1) + e.depthLift * eased,
         );
+        // Keep plates oriented — only a whisper of tilt so it doesn’t tumble
         if (!e.isEdge) {
-          e.mesh.rotation.x = e.spinAxis.x * e.spinSpeed * local * Math.PI;
-          e.mesh.rotation.y = e.spinAxis.y * e.spinSpeed * local * Math.PI;
-          e.mesh.rotation.z = e.spinAxis.z * e.spinSpeed * local * Math.PI;
+          e.mesh.rotation.x = e.homePos.y * 0.00008 * eased;
+          e.mesh.rotation.y = -e.homePos.x * 0.00006 * eased;
+          e.mesh.rotation.z = 0;
         }
         if (!e.isEdge && e.mesh instanceof THREE.Mesh) {
           const mat = e.mesh.material as THREE.MeshPhysicalMaterial;
-          mat.emissiveIntensity = 0.06 + p * 0.55;
-          warm.intensity = 1.0 + p * 4.2;
+          mat.emissiveIntensity = 0.06 + p * 0.45 * (1 - m) + m * 0.02;
+          mat.opacity = Math.max(0.08, 1 - m * 0.78);
+          mat.transparent = m > 0.02;
+          mat.depthWrite = m < 0.55;
+          mat.roughness = 0.22 + m * 0.55;
+          mat.envMapIntensity = 1.35 * (1 - m * 0.85);
+          warm.intensity = 1.0 + p * 2.8 * (1 - m);
         }
       });
 
-      floor.material.opacity = 0.45 * (1 - Math.min(1, p * 1.2));
+      edgeMat.opacity = 0.22 * (1 - Math.min(1, p * 1.35)) * (1 - m);
+      floor.material.opacity = 0.45 * (1 - Math.min(1, p * 0.85)) * (1 - m);
       cool.position.set(3.5 * Math.sin(0.5 * t), 1.8, 2.5 + Math.cos(0.4 * t));
+      cool.intensity = 0.45 * (1 - m);
+
+      // Soft merge into cream behind Focused vision — never kill hero visibility
+      if (m < 0.02) {
+        mount.style.opacity = "1";
+        mount.style.zIndex = "3";
+      } else {
+        mount.style.opacity = String(Math.max(0.04, 1 - m * 0.9));
+        mount.style.zIndex = "1";
+      }
 
       const ui = document.querySelector(".cine-hero-ui") as HTMLElement | null;
       if (ui) {
-        // Keep copy readable while mark is still assembled; fade on exit scatter
-        const fade = 1 - Math.min(1, Math.max(0, (p - 0.05) / 0.55));
+        // Only fade hero UI from scroll scatter, not merge leftovers
+        const fade = 1 - Math.min(1, Math.max(0, (state.scrollProgress - 0.02) / 0.42));
         ui.style.opacity = fade.toFixed(3);
       }
 
-      camera.position.z = 5.2 + p * 0.95;
-      camera.position.y = 0.12 - p * 0.12;
+      camera.position.z = 5.2 + p * 0.55 + m * 1.6;
+      camera.position.y = 0.12 - p * 0.06 - m * 0.2;
+      if (state.built) {
+        mount.dataset.open = p.toFixed(3);
+        mount.dataset.merge = m.toFixed(3);
+      }
       renderer.render(scene, camera);
       if (!reduce) raf = requestAnimationFrame(draw);
     };
@@ -460,13 +548,13 @@ export function HeroMark({ className, blast = false }: Props) {
       disposed = true;
       window.clearTimeout(refreshT);
       cancelAnimationFrame(raf);
-      st?.kill();
-      fadeSt?.kill();
+      triggers.forEach((t) => t.kill());
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("resize", onResize);
       const ui = document.querySelector(".cine-hero-ui") as HTMLElement | null;
       if (ui) ui.style.opacity = "";
       mount.style.opacity = "";
+      mount.style.zIndex = "";
       geos.forEach((g) => g.dispose());
       mats.forEach((m) => m.dispose());
       cubeRT.dispose();

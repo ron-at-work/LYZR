@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SmoothScrollProvider } from "./motion/SmoothScrollProvider";
+import { SoundProvider } from "./motion/SoundProvider";
 import { AgentCursor } from "./cinematic/AgentCursor";
 import { CapabilitiesStack } from "./cinematic/CapabilitiesStack";
 import { CinematicCta } from "./cinematic/CinematicCta";
@@ -59,7 +60,9 @@ function LandingInner() {
 export default function LyzrLanding() {
   return (
     <SmoothScrollProvider>
-      <LandingInner />
+      <SoundProvider>
+        <LandingInner />
+      </SoundProvider>
     </SmoothScrollProvider>
   );
 }

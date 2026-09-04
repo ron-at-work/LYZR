@@ -48,6 +48,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     lenisRef.current = instance;
     setLenis(instance);
     document.documentElement.classList.add("lenis");
+    (window as unknown as { __lenis?: Lenis }).__lenis = instance;
 
     instance.on("scroll", ScrollTrigger.update);
 
@@ -64,6 +65,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       instance.destroy();
       lenisRef.current = null;
       setLenis(null);
+      delete (window as unknown as { __lenis?: Lenis }).__lenis;
       document.documentElement.classList.remove("lenis");
     };
   }, []);

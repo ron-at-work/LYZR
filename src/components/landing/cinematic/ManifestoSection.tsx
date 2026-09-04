@@ -8,7 +8,7 @@ import { useSmoothScroll } from "../motion/SmoothScrollProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Primary (ink) + secondary (mist) — text sits on cream with the mark over it. */
+/** Primary (ink) + secondary (mist) — full sentence must finish before the next section may enter. */
 const PRIMARY = ["Lyzr", "is", "the", "enterprise", "control", "plane", "for", "agents"] as const;
 const SECONDARY = [
   "crafting",
@@ -25,29 +25,58 @@ const FLAT = [...PRIMARY, ...SECONDARY];
 
 export function ManifestoSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { lenis } = useSmoothScroll();
 
   useEffect(() => {
-    if (reduce || !stageRef.current || !sectionRef.current) return;
+    if (reduce || !sectionRef.current) return;
 
-    const words = stageRef.current.querySelectorAll<HTMLElement>(".cine-about-word");
+    const section = sectionRef.current;
+    const words = section.querySelectorAll<HTMLElement>(".cine-about-word");
+    const mist = section.querySelectorAll<HTMLElement>(".cine-about-word.is-mist");
+
     const ctx = gsap.context(() => {
-      gsap.set(words, { opacity: (i, el) => (el.classList.contains("is-mist") ? 0.28 : 0.18) });
-      gsap.to(words, {
-        opacity: 1,
-        ease: "none",
-        stagger: 0.07,
+      gsap.set(words, { opacity: 0.2 });
+      gsap.set(mist, { color: "rgba(22, 22, 22, 0.4)" });
+
+      // Pin the WHOLE about section so the marquee cannot rise until the sentence is fully read.
+      const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: stageRef.current,
+          trigger: section,
           start: "top top",
-          end: "+=120%",
-          scrub: 0.55,
+          end: () => `+=${Math.round(window.innerHeight * 2.6)}`,
+          scrub: 0.45,
           pin: true,
+          pinSpacing: true,
           anticipatePin: 1,
+          invalidateOnRefresh: true,
         },
       });
+
+      // Phase 1 — ink the full sentence (Lyzr → technology.)
+      tl.to(
+        words,
+        {
+          opacity: 1,
+          ease: "none",
+          stagger: { each: 0.035, from: "start" },
+          duration: 0.55,
+        },
+        0,
+      );
+      tl.to(
+        mist,
+        {
+          color: "#161616",
+          ease: "none",
+          stagger: { each: 0.035, from: "start" },
+          duration: 0.55,
+        },
+        0.05,
+      );
+
+      // Phase 2 — hold: sentence stays fully readable; next section still locked out
+      tl.to({}, { duration: 1.15 });
     }, sectionRef);
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -67,7 +96,7 @@ export function ManifestoSection() {
     <section className="cine-about" id="about" ref={sectionRef}>
       <p className="cine-side-label">About</p>
 
-      <div className="cine-about-stage" ref={stageRef}>
+      <div className="cine-about-stage">
         <h2 className="cine-about-copy" aria-label={FLAT.join(" ")}>
           <span className="cine-about-line is-ink">
             {PRIMARY.map((word, wi) => (

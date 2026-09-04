@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
@@ -17,20 +17,40 @@ export function MarqueeSection() {
 
   useEffect(() => {
     if (reduce || !ref.current) return;
-    const track = ref.current.querySelector<HTMLElement>(".cine-marquee-track");
-    if (!track) return;
+    const root = ref.current;
+    const track = root.querySelector<HTMLElement>(".cine-marquee-track");
+    const cuts = root.querySelectorAll<HTMLElement>(".cine-marquee-cut");
 
     const ctx = gsap.context(() => {
-      gsap.to(track, {
-        xPercent: -50,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 0.6,
+      if (track) {
+        gsap.to(track, {
+          xPercent: -50,
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.6,
+          },
+        });
+      }
+
+      // Horizontal light slabs that cut through the marquee (Trionn-style)
+      gsap.fromTo(
+        cuts,
+        { scaleY: 0, transformOrigin: "50% 0%" },
+        {
+          scaleY: 1,
+          ease: "none",
+          stagger: 0.08,
+          scrollTrigger: {
+            trigger: root,
+            start: "center center",
+            end: "bottom top",
+            scrub: 0.45,
+          },
         },
-      });
+      );
     }, ref);
 
     return () => ctx.revert();
@@ -46,7 +66,7 @@ export function MarqueeSection() {
   }, [lenis]);
 
   return (
-    <section className="cine-marquee" ref={ref}>
+    <section className="cine-marquee" id="vision" ref={ref}>
       <p className="cine-marquee-sub">
         Focused vision.
         <br />
@@ -61,6 +81,17 @@ export function MarqueeSection() {
           ))}
         </div>
       </div>
+
+      <div aria-hidden className="cine-marquee-cuts">
+        <span className="cine-marquee-cut" />
+        <span className="cine-marquee-cut" />
+        <span className="cine-marquee-cut" />
+      </div>
+
+      <p className="cine-marquee-cue">
+        ✦ From idea to outcome.
+        <span aria-hidden>▾</span>
+      </p>
     </section>
   );
 }

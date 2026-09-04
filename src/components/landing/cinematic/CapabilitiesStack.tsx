@@ -1,14 +1,36 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "motion/react";
 import { useSmoothScroll } from "../motion/SmoothScrollProvider";
+import { AgentForgeScene } from "./AgentForgeScene";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const STACK = ["Studio", "Architect", "Deploy", "Govern"] as const;
+const STAGES = [
+  {
+    word: "Studio",
+    caption: "A human opens Lyzr. Empty studio — desk, product, ready to build.",
+    prompt: "Open Lyzr Studio…",
+  },
+  {
+    word: "Architect",
+    caption: "They sit down and design the agent inside Lyzr — role, tools, memory.",
+    prompt: "Design support agent with CRM + memory…",
+  },
+  {
+    word: "Deploy",
+    caption: "The agent steps out of Lyzr into production — born from real use.",
+    prompt: "Ship agent from Lyzr → VPC…",
+  },
+  {
+    word: "Govern",
+    caption: "Same human. Same platform. Agent stays governed on Lyzr.",
+    prompt: "Bind identity + policy on Lyzr…",
+  },
+] as const;
 
 const SERVICES = [
   {
@@ -23,46 +45,41 @@ const SERVICES = [
 
 export function CapabilitiesStack() {
   const ref = useRef<HTMLElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef(0);
+  const [stage, setStage] = useState(0);
   const reduce = useReducedMotion();
   const { lenis } = useSmoothScroll();
 
   useEffect(() => {
-    if (reduce || !ref.current) return;
-    const words = ref.current.querySelectorAll<HTMLElement>(".cine-svc-word");
-    const slab = ref.current.querySelector<HTMLElement>(".cine-svc-slab");
+    if (!pinRef.current || !ref.current) return;
+
+    if (reduce) {
+      progressRef.current = 1;
+      setStage(STAGES.length - 1);
+      return;
+    }
 
     const ctx = gsap.context(() => {
-      gsap.to(words, {
-        yPercent: -120,
-        ease: "none",
-        stagger: 0.08,
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top top",
-          end: "+=140%",
-          scrub: true,
-          pin: true,
+      ScrollTrigger.create({
+        trigger: pinRef.current,
+        start: "top top",
+        end: "+=360%",
+        pin: true,
+        scrub: 0.75,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          progressRef.current = self.progress;
+          const idx = Math.min(
+            STAGES.length - 1,
+            Math.floor(self.progress * STAGES.length * 0.999),
+          );
+          setStage((prev) => (prev === idx ? prev : idx));
         },
       });
-      if (slab) {
-        gsap.fromTo(
-          slab,
-          { scale: 0.86, rotate: -4 },
-          {
-            scale: 1,
-            rotate: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ref.current,
-              start: "top top",
-              end: "+=140%",
-              scrub: true,
-            },
-          },
-        );
-      }
     }, ref);
 
+    requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => ctx.revert();
   }, [reduce]);
 
@@ -75,24 +92,57 @@ export function CapabilitiesStack() {
     };
   }, [lenis]);
 
+  const active = STAGES[stage];
+
   return (
     <section className="cine-services" id="services" ref={ref}>
-      <p className="cine-svc-label">Our platform</p>
+      <div className="cine-forge" ref={pinRef}>
+        <div className="cine-forge-ui">
+          <p className="cine-svc-label">Our platform</p>
 
-      <div className="cine-svc-stage">
-        <div className="cine-svc-words" aria-hidden>
-          {STACK.map((w) => (
-            <span className="cine-svc-word" key={w}>
-              {w}
-            </span>
-          ))}
-        </div>
-        <div className="cine-svc-slab">
-          <span className="cine-svc-carve" />
+          <div className="cine-forge-layout">
+            <div className="cine-forge-copy">
+              <h2 className="cine-forge-stage" key={active.word}>
+                {active.word}
+              </h2>
+              <p className="cine-forge-caption" key={`${active.word}-c`}>
+                {active.caption}
+              </p>
+              <ol className="cine-forge-rail" aria-label="Agent build stages">
+                {STAGES.map((s, i) => (
+                  <li
+                    className={i === stage ? "is-active" : i < stage ? "is-done" : ""}
+                    key={s.word}
+                  >
+                    <span>{s.word}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="cine-forge-frame">
+              <div className="cine-forge-frame-top">
+                <span>On Lyzr</span>
+                <span>Human → Agent</span>
+              </div>
+              <div className="cine-forge-viewport">
+                <AgentForgeScene className="cine-forge-canvas" progressRef={progressRef} />
+              </div>
+              <div
+                className={`cine-forge-prompt${stage > 0 && stage < 3 ? " is-generating" : ""}${stage >= 3 ? " is-done" : ""}`}
+                aria-hidden
+              >
+                <span className="cine-forge-prompt-text">{active.prompt}</span>
+                <span className="cine-forge-prompt-btn">
+                  {stage >= 3 ? "Online" : stage > 0 ? "Generating…" : "Generate"}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <p className="cine-svc-tag">✦ Different disciplines. One standard of craft.</p>
+      <p className="cine-svc-tag">Different disciplines. One standard of craft.</p>
 
       <div className="cine-svc-grid">
         {SERVICES.map((s) => (
