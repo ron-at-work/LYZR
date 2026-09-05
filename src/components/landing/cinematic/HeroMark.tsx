@@ -24,9 +24,6 @@ type Shard = {
   depthLift: number;
   delay: number;
   shapeIdx: number;
-  /** Per-shard explode velocity (world-ish, group local). */
-  boomVel: THREE.Vector3;
-  boomSpin: THREE.Vector3;
   isEdge?: boolean;
 };
 
@@ -51,7 +48,8 @@ type TermLabel = {
 /**
  * 3D Lyzr mark — grainy mesh hologram (not a solid ink blob).
  * Ghost glass volume + wire cage + silhouette + soft grain points.
- * Scroll radial fail-open; hold → agents + AI terms.
+ * Scroll radial fail-open; hold → buzz then emit agents + AI terms
+ * (mark stays assembled — no shard explode).
  */
 export function HeroMark({ className, blast = false }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -428,12 +426,6 @@ export function HeroMark({ className, blast = false }: Props) {
         depthLift: isEdge ? 0 : (Math.random() - 0.5) * 0.22,
         delay: isEdge ? 0 : shapeIdx * 0.012,
         shapeIdx,
-        boomVel: new THREE.Vector3(),
-        boomSpin: new THREE.Vector3(
-          (Math.random() - 0.5) * 4,
-          (Math.random() - 0.5) * 4,
-          (Math.random() - 0.5) * 3,
-        ),
         isEdge,
       });
     };
@@ -580,24 +572,12 @@ export function HeroMark({ className, blast = false }: Props) {
           if (s.isEdge) {
             s.expandMul = 1;
             s.depthLift = 0;
-            s.boomVel.set(
-              (Math.random() - 0.5) * 200,
-              (Math.random() - 0.5) * 200,
-              (Math.random() - 0.5) * 120,
-            );
             return;
           }
           const r = Math.hypot(c.x, c.y);
           // Outer plates open a touch more than the core — still one silhouette
           s.expandMul = 0.96 + Math.min(0.18, r * 0.001) + Math.random() * 0.04;
           s.depthLift = (Math.random() - 0.5) * 0.2;
-          // Explode outward from centroid
-          const len = Math.max(0.001, r);
-          s.boomVel.set(
-            (c.x / len) * (180 + Math.random() * 220),
-            (c.y / len) * (180 + Math.random() * 220),
-            (Math.random() - 0.5) * 160,
-          );
         });
 
         const s = 2.55 / Math.max(size.x, size.y, 0.001);
@@ -744,12 +724,12 @@ export function HeroMark({ className, blast = false }: Props) {
       state.holding = blastRef.current;
       if (state.holding) {
         state.holdTime += 1 / 60;
-        // Buzz → explode into agent particles
+        // Buzz → emit agents + AI terms (mark stays assembled)
         if (state.holdTime < 0.55) {
           state.vibrateAmt = 1;
           state.clickBurst = 0;
         } else {
-          state.vibrateAmt = Math.max(0.05, state.vibrateAmt * 0.88);
+          state.vibrateAmt = Math.max(0.22, state.vibrateAmt * 0.94);
           state.clickBurst = Math.min(1, state.clickBurst + 0.048);
         }
       } else {
@@ -766,11 +746,12 @@ export function HeroMark({ className, blast = false }: Props) {
       if (state.introAmt > 0.001) state.introAmt *= 0.975;
       else state.introAmt = 0;
 
+      // Hold only soft-pulses the mark; scroll still does fail-open
       const holdEnergy = state.scrollProgress < 0.12 ? state.clickBurst : 0;
-      const p = Math.max(state.scrollProgress, holdEnergy * 0.35, state.introAmt);
+      const p = Math.max(state.scrollProgress, holdEnergy * 0.12, state.introAmt);
       const m = state.mergeProgress;
-      const boom = state.scrollProgress < 0.14 ? state.clickBurst : 0;
-      const boomE = boom * boom * (3 - 2 * boom);
+      const emit = state.scrollProgress < 0.14 ? state.clickBurst : 0;
+      const emitE = emit * emit * (3 - 2 * emit);
 
       // Phone: large mark in the mid band under copy (positive Y = up on screen)
       const vw = window.innerWidth;
@@ -781,18 +762,16 @@ export function HeroMark({ className, blast = false }: Props) {
       const camZ = compact ? 3.85 : tablet ? 5.35 : 5.2;
       const camY = compact ? -0.15 : tablet ? 0.22 : 0.12;
 
-      // In-place yaw rotate (axis spin) — not a positional revolve
-      if (boomE < 0.85) {
-        state.rotY += reduce ? 0 : 0.0065 * (1 - m * 0.7);
-        const targetRotX = 0.1 + 0.1 * state.mouseY * (1 - m);
-        const targetRotY = state.rotY + 0.12 * state.mouseX * (1 - m);
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.08;
-        group.rotation.y += (targetRotY - group.rotation.y) * 0.08;
-        group.rotation.z += (0.04 * Math.sin(t * 0.35) * (1 - m) - group.rotation.z) * 0.04;
-      }
+      // In-place yaw rotate (axis spin) — keep spinning while emitting
+      state.rotY += reduce ? 0 : 0.0065 * (1 - m * 0.7);
+      const targetRotX = 0.1 + 0.1 * state.mouseY * (1 - m);
+      const targetRotY = state.rotY + 0.12 * state.mouseX * (1 - m);
+      group.rotation.x += (targetRotX - group.rotation.x) * 0.08;
+      group.rotation.y += (targetRotY - group.rotation.y) * 0.08;
+      group.rotation.z += (0.04 * Math.sin(t * 0.35) * (1 - m) - group.rotation.z) * 0.04;
 
       if (state.built) {
-        const gVib = state.vibrateAmt * (1 - boomE * 0.4);
+        const gVib = state.vibrateAmt;
         const gx = Math.sin(t * 92) * 0.028 * gVib + Math.sin(t * 151) * 0.012 * gVib;
         const gy = Math.cos(t * 107) * 0.024 * gVib + Math.cos(t * 173) * 0.01 * gVib;
         group.position.x = state.pathX * (1 - m) + gx;
@@ -800,7 +779,7 @@ export function HeroMark({ className, blast = false }: Props) {
           state.baseY + layoutY + state.pathY * (1 - m) - m * 0.55 - p * 0.08 + gy;
         group.position.z = -m * 2.4;
         const bs = state.baseScale * state.aboutScale * layoutScale;
-        const openScale = 1 + p * 0.1 + boomE * 0.15;
+        const openScale = 1 + p * 0.1 + emitE * 0.05;
         const mergeScale = (1 - m * 0.42) * openScale;
         group.scale.set(bs * mergeScale, -bs * mergeScale, bs * mergeScale);
         group.visible = true;
@@ -808,18 +787,18 @@ export function HeroMark({ className, blast = false }: Props) {
 
       // Sync agent cloud to mark position
       agentRoot.position.set(group.position.x, group.position.y, group.position.z + 0.2);
-      agentRoot.visible = boomE > 0.05;
+      agentRoot.visible = emitE > 0.05;
 
       state.vibratePhase += 3.6 + state.vibrateAmt * 4.2;
       const openAmt = 1.55;
       shards.forEach((e) => {
         const local = Math.max(0, Math.min(1, (p - e.delay) / Math.max(0.001, 1 - e.delay)));
         const eased = local * local * (3 - 2 * local);
-        // Scroll = soft fail-open; hold boom = hard explode
-        const scale = 1 + openAmt * eased * e.expandMul * (1 - boomE * 0.25);
+        // Scroll = soft fail-open; hold keeps silhouette (buzz only)
+        const scale = 1 + openAmt * eased * e.expandMul;
         const idleX = 0.006 * Math.sin(0.35 * t + e.shapeIdx) * (1 - p) * (1 - m);
         const idleY = 0.005 * Math.cos(0.3 * t + e.shapeIdx) * (1 - p) * (1 - m);
-        const vib = 0.155 * state.vibrateAmt * (1 - boomE * 0.7);
+        const vib = 0.155 * state.vibrateAmt;
         const vx =
           Math.sin(state.vibratePhase * 1.7 + 28 * e.delay + e.shapeIdx * 2.1) * vib +
           Math.sin(state.vibratePhase * 3.1 + e.shapeIdx) * vib * 0.35;
@@ -828,21 +807,19 @@ export function HeroMark({ className, blast = false }: Props) {
           Math.cos(state.vibratePhase * 2.7 + e.delay * 11) * vib * 0.3;
         const vz = Math.sin(state.vibratePhase * 2.2 + e.delay * 9) * vib * 0.75;
 
-        const rx = e.homePos.x * (scale - 1) + idleX + vx + e.boomVel.x * boomE;
-        const ry = e.homePos.y * (scale - 1) + idleY + vy + e.boomVel.y * boomE;
-        const rz = e.homePos.z * (scale - 1) + e.depthLift * eased + vz + e.boomVel.z * boomE;
+        const rx = e.homePos.x * (scale - 1) + idleX + vx;
+        const ry = e.homePos.y * (scale - 1) + idleY + vy;
+        const rz = e.homePos.z * (scale - 1) + e.depthLift * eased + vz;
 
         e.mesh.position.set(rx, ry, rz);
 
         if (!e.isEdge) {
-          e.mesh.rotation.x =
-            e.homePos.y * 0.00008 * eased * (1 - boomE) + e.boomSpin.x * boomE;
-          e.mesh.rotation.y =
-            -e.homePos.x * 0.00006 * eased * (1 - boomE) + e.boomSpin.y * boomE;
-          e.mesh.rotation.z = e.boomSpin.z * boomE;
+          e.mesh.rotation.x = e.homePos.y * 0.00008 * eased;
+          e.mesh.rotation.y = -e.homePos.x * 0.00006 * eased;
+          e.mesh.rotation.z = 0;
           e.mesh.scale.set(1, 1, 1);
         } else {
-          e.mesh.rotation.set(e.boomSpin.x * boomE, e.boomSpin.y * boomE, e.boomSpin.z * boomE);
+          e.mesh.rotation.set(0, 0, 0);
           e.mesh.scale.set(1, 1, 1);
         }
 
@@ -850,8 +827,8 @@ export function HeroMark({ className, blast = false }: Props) {
           warm.intensity =
             0.85 +
             p * 1.8 * (1 - m) +
-            state.vibrateAmt * 1.4 * (1 - boomE) +
-            boomE * 2.6;
+            state.vibrateAmt * 1.4 +
+            emitE * 1.1;
         }
       });
 
@@ -859,16 +836,15 @@ export function HeroMark({ className, blast = false }: Props) {
       ghostMat.opacity =
         (0.12 + 0.035 * Math.sin(t * 1.15)) *
         (1 - p * 0.4) *
-        (1 - boomE * 0.7) *
         Math.max(0.12, 1 - m * 0.85);
 
       // —— Agent particles (nodes + sparks) ——
       agents.forEach((a, i) => {
-        const live = boomE > 0.08;
+        const live = emitE > 0.08;
         a.mesh.visible = live;
         if (!live) return;
-        const reveal = Math.max(0, Math.min(1, (boomE - 0.08) / 0.4));
-        const flight = boomE;
+        const reveal = Math.max(0, Math.min(1, (emitE - 0.08) / 0.4));
+        const flight = emitE;
         const ox =
           a.seed.x +
           a.vel.x * flight * 0.55 +
@@ -894,12 +870,12 @@ export function HeroMark({ className, blast = false }: Props) {
 
       // —— AI term labels (OpenAI, LLM, …) — billboards, readable ——
       terms.forEach((term, i) => {
-        const live = boomE > 0.12;
+        const live = emitE > 0.12;
         term.mesh.visible = live;
         if (!live) return;
-        const reveal = Math.max(0, Math.min(1, (boomE - 0.1 - (i % 6) * 0.02) / 0.45));
+        const reveal = Math.max(0, Math.min(1, (emitE - 0.1 - (i % 6) * 0.02) / 0.45));
         const revE = reveal * reveal * (3 - 2 * reveal);
-        const flight = boomE;
+        const flight = emitE;
         const ox =
           term.seed.x +
           term.vel.x * flight * 0.72 +
@@ -922,11 +898,11 @@ export function HeroMark({ className, blast = false }: Props) {
       });
 
       // Sparks
-      sparkMat.opacity = boomE > 0.12 ? Math.min(0.95, boomE * 1.1) : 0;
-      if (boomE > 0.1) {
+      sparkMat.opacity = emitE > 0.12 ? Math.min(0.95, emitE * 1.1) : 0;
+      if (emitE > 0.1) {
         for (let i = 0; i < sparkCount; i += 1) {
           const v = sparkVel[i];
-          const u = boomE;
+          const u = emitE;
           sparkPos[i * 3] = v.x * u * 0.7 + Math.sin(t * 2.2 + i) * 0.05;
           sparkPos[i * 3 + 1] = v.y * u * 0.7 + Math.cos(t * 1.8 + i * 0.7) * 0.05;
           sparkPos[i * 3 + 2] = v.z * u * 0.55;
@@ -934,17 +910,17 @@ export function HeroMark({ className, blast = false }: Props) {
         sparkGeo.attributes.position.needsUpdate = true;
       }
 
-      // Mesh cage + grain pulse — hologram always, never a solid brick
-      const live = (1 - m) * (1 - boomE * 0.65);
-      wireMat.opacity = (0.32 + 0.1 * Math.sin(t * 1.4) + p * 0.18) * live;
+      // Mesh cage + grain pulse — hologram stays readable while emitting
+      const live = 1 - m;
+      wireMat.opacity = (0.32 + 0.1 * Math.sin(t * 1.4) + p * 0.18 + emitE * 0.08) * live;
       edgeMat.opacity = (0.72 + p * 0.12 + state.vibrateAmt * 0.15) * live;
       holoEdgeMat.opacity =
-        (0.18 + p * 0.45 + state.vibrateAmt * 0.4) * live;
+        (0.18 + p * 0.45 + state.vibrateAmt * 0.4 + emitE * 0.2) * live;
       grainMat.opacity = (0.45 + 0.12 * Math.sin(t * 2.1) + p * 0.2) * live;
       grainMat.size = 1.45 + 0.35 * Math.sin(t * 1.7) + p * 0.4;
-      floorMat.opacity = 0.055 * (1 - Math.min(1, p * 0.85)) * (1 - m) * (1 - boomE * 0.5);
+      floorMat.opacity = 0.055 * (1 - Math.min(1, p * 0.85)) * (1 - m);
       cool.position.set(3.5 * Math.sin(0.5 * t), 1.8, 2.5 + Math.cos(0.4 * t));
-      cool.intensity = 0.45 * (1 - m) + p * 0.4 + boomE * 0.7;
+      cool.intensity = 0.45 * (1 - m) + p * 0.4 + emitE * 0.45;
 
       // Soft merge into cream behind Focused vision — never kill hero visibility
       if (m < 0.02) {

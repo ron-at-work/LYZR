@@ -17,7 +17,7 @@ import { PhoneHeroVisual } from "./PhoneHeroVisual";
 /** Rotating emphasis — Lyzr product outcomes, not agency filler. */
 const WORDS = ["production.", "your VPC.", "enterprise.", "governance.", "scale."] as const;
 
-/** Matches HeroMark buzz window before 3D A/I expand. */
+/** Matches HeroMark buzz window before agent / AI-term emit. */
 const BUZZ_MS = 550;
 const HAPTIC_TICK_MS = 55;
 
@@ -88,7 +88,7 @@ export function CinematicHero() {
         }, HAPTIC_TICK_MS);
       }
 
-      // When mark expands → 3D A / I (sound cue)
+      // When agents + AI terms emit (sound cue)
       const toExpand = window.setTimeout(
         () => {
           if (!holdingRef.current) return;
@@ -185,7 +185,7 @@ export function CinematicHero() {
         {showMark ? (
           <div className="cine-mark-stage">
             <div
-              aria-label="Hold to explode into agents"
+              aria-label="Hold for agents and AI terms"
               className="cine-mark-hit"
               role="button"
               tabIndex={0}
