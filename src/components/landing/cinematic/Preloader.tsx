@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   onDone: () => void;
@@ -15,29 +15,73 @@ const LINES = [
   "Agents standing by",
 ] as const;
 
+const DURATION_MS = 1400;
+
 export function Preloader({ onDone }: Props) {
   const [progress, setProgress] = useState(0);
   const [exit, setExit] = useState(false);
   const [lineIdx, setLineIdx] = useState(0);
+  const onDoneRef = useRef(onDone);
+  const finishedRef = useRef(false);
 
   useEffect(() => {
-    let frame = 0;
+    onDoneRef.current = onDone;
+  }, [onDone]);
+
+  useEffect(() => {
     let raf = 0;
-    const tick = () => {
-      frame += 1;
-      const next = Math.min(100, Math.round(frame * 1.85));
+    let exitTimer = 0;
+    let doneTimer = 0;
+    let active = true;
+    const started = performance.now();
+
+    const finish = () => {
+      if (finishedRef.current || !active) return;
+      finishedRef.current = true;
+      setProgress(100);
+      setLineIdx(LINES.length - 1);
+      exitTimer = window.setTimeout(() => {
+        if (active) setExit(true);
+      }, 280);
+      doneTimer = window.setTimeout(() => {
+        if (active) onDoneRef.current();
+      }, 820);
+    };
+
+    const tick = (now: number) => {
+      if (!active) return;
+      const next = Math.min(100, Math.round(((now - started) / DURATION_MS) * 100));
       setProgress(next);
       setLineIdx(Math.min(LINES.length - 1, Math.floor(next / 22)));
       if (next < 100) {
         raf = requestAnimationFrame(tick);
       } else {
-        setTimeout(() => setExit(true), 280);
-        setTimeout(onDone, 820);
+        finish();
       }
     };
+
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [onDone]);
+
+    // Interval fallback when rAF is throttled (background / embedded browsers)
+    const watchdog = window.setInterval(() => {
+      if (!active || finishedRef.current) return;
+      const next = Math.min(100, Math.round(((performance.now() - started) / DURATION_MS) * 100));
+      setProgress(next);
+      setLineIdx(Math.min(LINES.length - 1, Math.floor(next / 22)));
+      if (next >= 100) finish();
+    }, 50);
+
+    const hardCap = window.setTimeout(finish, DURATION_MS + 500);
+
+    return () => {
+      active = false;
+      cancelAnimationFrame(raf);
+      window.clearInterval(watchdog);
+      window.clearTimeout(hardCap);
+      window.clearTimeout(exitTimer);
+      window.clearTimeout(doneTimer);
+    };
+  }, []);
 
   return (
     <div aria-busy={!exit} aria-live="polite" className={`cine-preload${exit ? " is-exit" : ""}`}>

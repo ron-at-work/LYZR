@@ -19,7 +19,7 @@ function isEngageTarget(el: Element | null) {
   if (!el) return false;
   return Boolean(
     el.closest(
-      "a, button, [role='button'], .cine-nav-btn, .cine-pill, .cine-link, .cine-cookie-btn, summary, label[for]",
+      "a, button, [role='button'], .cine-nav-btn, .cine-pill, .cine-link, summary, label[for]",
     ),
   );
 }

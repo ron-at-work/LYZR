@@ -10,6 +10,8 @@ const LINKS = [
   { href: "#facts", label: "Key facts" },
   { href: "#work", label: "Work" },
   { href: "#services", label: "Platform" },
+  { href: "#ceo", label: "CEO" },
+  { href: "#press", label: "Awards" },
   { href: "#contact", label: "Contact" },
 ] as const;
 
@@ -30,7 +32,7 @@ export function CinematicNav({ open, onToggle, onClose }: Props) {
   }, [open]);
 
   useEffect(() => {
-    const darks = document.querySelectorAll(".cine-services, .cine-close");
+    const darks = document.querySelectorAll(".cine-services, .cine-ceo, .cine-close");
     if (!darks.length) return;
 
     const io = new IntersectionObserver(
