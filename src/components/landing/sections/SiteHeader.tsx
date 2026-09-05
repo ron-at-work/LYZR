@@ -68,12 +68,12 @@ export function SiteHeader({
           </button>
         </div>
       )}
-      <div className="pointer-events-none pl-3 pr-5 sm:pl-5 sm:pr-8 pt-3 pb-2">
+      <div className="pointer-events-none px-4 sm:px-6 lg:px-8 pt-3.5 pb-2">
         <div className="max-w-[1240px] mx-auto flex items-center justify-between gap-3">
           {/* Brand */}
           <a
             aria-label="Lyzr home"
-            className={`nav-chrome pointer-events-auto inline-flex items-center h-11 ${navSolid ? "is-solid px-3.5" : "px-1"}`}
+            className="nav-chrome nav-chrome--logo pointer-events-auto inline-flex items-center h-11 px-3.5"
             href="#"
             onClick={closeMobileNav}
           >
@@ -87,10 +87,8 @@ export function SiteHeader({
           </a>
 
           {/* Nav + CTA */}
-          <div
-            className={`nav-chrome pointer-events-auto hidden lg:flex items-center h-11 overflow-visible ${navSolid ? "is-solid pl-1 pr-1.5" : ""}`}
-          >
-            <nav className="hidden lg:flex items-center h-full px-1">
+          <div className="nav-chrome nav-chrome--bar pointer-events-auto hidden lg:flex items-center h-11 overflow-visible pl-2 pr-1.5 gap-1">
+            <nav className="hidden lg:flex items-center h-full gap-0.5">
               {/* Solutions */}
               <div
                 className={`nav-item relative h-full flex items-center${openNav === "solutions" ? " is-open" : ""}`}
@@ -375,7 +373,7 @@ export function SiteHeader({
                 </svg>
               </a>
               <a
-                className="ml-0.5 inline-flex items-center gap-2 h-8 pl-3 pr-3.5 rounded-full btn-brand text-[13px] font-semibold active:scale-[0.98] transition-all"
+                className="inline-flex items-center gap-2 h-8 pl-3.5 pr-3.5 rounded-full btn-brand text-[13px] font-semibold active:scale-[0.98] transition-all"
                 href="#get-started"
               >
                 Get started

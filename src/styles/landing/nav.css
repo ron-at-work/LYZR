@@ -466,9 +466,14 @@
     0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
-.landing-nav a.nav-chrome {
-  padding-left: 0.85rem;
-  padding-right: 0.85rem;
+.landing-nav .nav-chrome--logo {
+  padding-left: 0.9rem;
+  padding-right: 0.95rem;
+}
+
+.landing-nav .nav-chrome--bar {
+  padding-left: 0.45rem;
+  padding-right: 0.4rem;
 }
 
 .landing-nav .nav-chrome > img {
@@ -477,13 +482,24 @@
   width: auto;
 }
 
+.landing-nav .nr {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: 0.35rem;
+  padding-left: 0.35rem;
+  border-left: 1px solid rgba(17, 17, 17, 0.08);
+}
+
 .landing-nav .nav-trigger {
   color: #3a3a3a;
+  padding: 0 0.7rem;
 }
 
 .landing-nav .nr .bsi {
   color: #161616;
   background: rgb(17 17 17 / 0.04);
   border-color: rgb(17 17 17 / 0.1);
+  padding: 0 0.8rem 0 0.9rem;
 }
 

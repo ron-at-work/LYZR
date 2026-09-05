@@ -488,7 +488,7 @@ export function HeroMark({ className, blast = false }: Props) {
       targetScrollProgress: 0,
       mergeProgress: 0,
       targetMerge: 0,
-      // About path: right (small) → hold right → center → down
+      // About: stay centered (no orbit); soft scale only
       pathX: 0,
       pathY: 0,
       targetPathX: 0,
@@ -511,27 +511,15 @@ export function HeroMark({ className, blast = false }: Props) {
       built: false,
     };
 
-    /** Piecewise path while About is on screen — park small on the right first. */
+    /** About scroll: stay centered and spin in place (no orbit/revolve path). */
     const sampleAboutPath = (t: number) => {
-      const pts = [
-        { t: 0, x: 1.55, y: 0.06, s: 0.55 }, // right empty space, smaller
-        { t: 0.38, x: 1.7, y: 0.1, s: 0.52 }, // hold on right while copy reads
-        { t: 0.58, x: 0.28, y: 0.85, s: 0.72 }, // then up-center
-        { t: 0.78, x: 1.4, y: 0.12, s: 0.6 }, // right again
-        { t: 1, x: 0.28, y: -0.95, s: 0.7 }, // down center
-      ];
       const clamped = Math.max(0, Math.min(1, t));
-      let i = 0;
-      while (i < pts.length - 1 && pts[i + 1].t < clamped) i += 1;
-      const a = pts[i];
-      const b = pts[Math.min(i + 1, pts.length - 1)];
-      const span = Math.max(0.0001, b.t - a.t);
-      const u = (clamped - a.t) / span;
-      const e = u * u * (3 - 2 * u);
+      // Soft scale only — keep mark readable over manifesto copy
+      const s = 0.72 + 0.08 * Math.sin(clamped * Math.PI);
       return {
-        x: a.x + (b.x - a.x) * e,
-        y: a.y + (b.y - a.y) * e,
-        s: a.s + (b.s - a.s) * e,
+        x: 0,
+        y: 0,
+        s,
       };
     };
 
@@ -656,8 +644,8 @@ export function HeroMark({ className, blast = false }: Props) {
         }),
       );
 
-      // 1b) About pin window: orbit path so copy on the left stays readable
-      // Match ManifestoSection pin length so the mark clears text for the whole read.
+      // 1b) About pin window: in-place rotate + soft scale (no screen orbit)
+      // Match ManifestoSection pin length for the whole read.
       if (about) {
         triggers.push(
           ScrollTrigger.create({
@@ -793,13 +781,14 @@ export function HeroMark({ className, blast = false }: Props) {
       const camZ = compact ? 3.85 : tablet ? 5.35 : 5.2;
       const camY = compact ? -0.15 : tablet ? 0.22 : 0.12;
 
-      // Gentle yaw — keep spinning unless fully exploded
+      // In-place yaw rotate (axis spin) — not a positional revolve
       if (boomE < 0.85) {
-        state.rotY += reduce ? 0 : 0.0028 * (1 - m * 0.7);
-        const targetRotX = 0.12 + 0.14 * state.mouseY * (1 - m);
-        const targetRotY = state.rotY + 0.16 * state.mouseX * (1 - m);
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.06;
-        group.rotation.y += (targetRotY - group.rotation.y) * 0.06;
+        state.rotY += reduce ? 0 : 0.0065 * (1 - m * 0.7);
+        const targetRotX = 0.1 + 0.1 * state.mouseY * (1 - m);
+        const targetRotY = state.rotY + 0.12 * state.mouseX * (1 - m);
+        group.rotation.x += (targetRotX - group.rotation.x) * 0.08;
+        group.rotation.y += (targetRotY - group.rotation.y) * 0.08;
+        group.rotation.z += (0.04 * Math.sin(t * 0.35) * (1 - m) - group.rotation.z) * 0.04;
       }
 
       if (state.built) {
@@ -958,11 +947,9 @@ export function HeroMark({ className, blast = false }: Props) {
       cool.intensity = 0.45 * (1 - m) + p * 0.4 + boomE * 0.7;
 
       // Soft merge into cream behind Focused vision — never kill hero visibility
-      const onAbout = Math.abs(state.pathX) + Math.abs(state.pathY) > 0.04 || state.targetPathX !== 0;
       if (m < 0.02) {
         mount.style.opacity = "1";
-        // Above about (z4) while parked on the right empty space
-        mount.style.zIndex = onAbout ? "6" : "1";
+        mount.style.zIndex = "1";
       } else {
         mount.style.opacity = String(Math.max(0.04, 1 - m * 0.9));
         mount.style.zIndex = "0";
