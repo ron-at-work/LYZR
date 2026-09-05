@@ -15,7 +15,7 @@ const CARDS = [
     body: "Trusted by Accenture, NVIDIA, AWS, Azure, and Google Cloud.",
     stat: "40+",
     tone: "dark",
-    image: "/landing/fact-awards.jpg",
+    image: "/landing/fact-awards.webp",
     imageAlt: "Chrome Lyzr mark sculpture with warm amber light",
   },
   {
@@ -31,7 +31,7 @@ const CARDS = [
     body: "Governance first. Scale always. Conversion that actually ships.",
     stat: "95%",
     tone: "mid",
-    image: "/landing/fact-team.jpg",
+    image: "/landing/fact-team.webp",
     imageAlt: "Silhouette figure with agent shards in architectural light",
   },
 ] as const;
@@ -149,7 +149,15 @@ export function TrustSection() {
             {card.image ? (
               <div className="cine-fact-media">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt={card.imageAlt} src={card.image} />
+                <img
+                  alt={card.imageAlt}
+                  decoding="async"
+                  height={1050}
+                  loading="lazy"
+                  sizes="(max-width: 720px) 85vw, 327px"
+                  src={card.image}
+                  width={700}
+                />
               </div>
             ) : (
               <div className="cine-fact-orb" aria-hidden>

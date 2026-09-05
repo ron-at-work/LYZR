@@ -1,5 +1,29 @@
 /* mobile-nav */
 /* Mobile / tablet nav drawer */
+
+/*
+ * Light cinematic tokens — mirrored from .landing-nav.
+ * The drawer is portaled to document.body, so it does NOT inherit
+ * .landing-nav overrides and would otherwise use dark-first globals
+ * (--ink: #f2f2f2 on a cream panel = unreadable).
+ */
+.mobile-nav,
+.landing-nav .mobile-nav-btn,
+.landing-nav .mobile-nav-actions {
+  --surface-card: #ffffff;
+  --surface-subtle: #f7f5f0;
+  --ink: #161616;
+  --ink-soft: #5c5c5c;
+  --ink-muted: rgba(22, 22, 22, 0.55);
+  --ink-faint: rgba(22, 22, 22, 0.35);
+  --ink-hint: rgba(22, 22, 22, 0.38);
+  --ink-quiet: rgba(22, 22, 22, 0.45);
+  --ink-elevated: #2a2a2a;
+  --ink-hover: #000000;
+  --on-primary: #f3f1ec;
+  --hairline: rgba(17, 17, 17, 0.1);
+}
+
 .mobile-nav-btn {
   display: inline-flex;
   align-items: center;
@@ -8,8 +32,8 @@
   height: 2.75rem;
   border-radius: 9999px;
   border: 1px solid rgb(17 17 17 / 0.08);
-  background: var(--surface-card);
-  color: var(--ink);
+  background: #ffffff;
+  color: #161616;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 14px rgb(0 0 0 / 0.06);
   transition:
     background-color 0.18s ease,
@@ -75,7 +99,7 @@
   min-height: 3rem;
   padding: 0.85rem 0.15rem;
   border-bottom: 1px solid rgb(17 17 17 / 0.08);
-  color: var(--ink);
+  color: #161616;
   font-size: 1.05rem;
   font-weight: 560;
   letter-spacing: -0.02em;
@@ -90,7 +114,7 @@
 
 .mobile-nav-link:hover,
 a.mobile-nav-link:hover {
-  color: var(--ink-soft);
+  color: #5c5c5c;
 }
 
 .mobile-nav-group {
@@ -104,7 +128,7 @@ a.mobile-nav-link:hover {
   width: 100%;
   min-height: 3rem;
   padding: 0.85rem 0.15rem;
-  color: var(--ink);
+  color: #161616;
   font-size: 1.05rem;
   font-weight: 560;
   letter-spacing: -0.02em;
@@ -123,7 +147,7 @@ a.mobile-nav-link:hover {
   display: block;
   padding: 0.55rem 0.35rem;
   border-radius: 0.5rem;
-  color: var(--ink-muted);
+  color: rgba(22, 22, 22, 0.55);
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -131,7 +155,7 @@ a.mobile-nav-link:hover {
 
 .mobile-nav-sublink:hover {
   background: rgb(17 17 17 / 0.04);
-  color: var(--ink);
+  color: #161616;
 }
 
 .mobile-nav-cta-row {
@@ -159,8 +183,13 @@ a.mobile-nav-link:hover {
 
 .mobile-nav-cta--ghost {
   background: transparent;
-  color: var(--ink);
+  color: #161616;
   border: 1px solid rgb(17 17 17 / 0.14);
+}
+
+.mobile-nav-btn .material-symbols-outlined,
+.mobile-nav-bar .material-symbols-outlined {
+  color: #161616;
 }
 
 @media (min-width: 1024px) {

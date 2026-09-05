@@ -1,22 +1,6 @@
-@import "./brand-ink.css";
+/* Active surface: cinematic landing + 404. Legacy section sheets stay on disk unused. */
 @import "./typography.css";
-@import "./layout.css";
 @import "./nav.css";
 @import "./mobile-nav.css";
-@import "./hero.css";
-@import "./workflow.css";
-@import "./telemetry.css";
-@import "./customer-grid.css";
-@import "./knowledge-base.css";
-@import "./agent-stack.css";
-@import "./adlc.css";
-@import "./operating-models.css";
-@import "./why-lyzr.css";
-@import "./prod-gap.css";
-@import "./testimonials.css";
-@import "./case-studies.css";
-@import "./workforce.css";
-@import "./site-footer.css";
 @import "./not-found.css";
-@import "./tour.css";
 @import "./cinematic.css";

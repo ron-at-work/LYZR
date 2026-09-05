@@ -6,8 +6,9 @@
   --cine-light: #111111;
   --cine-light-2: #1a1a1a;
   --cine-fg: #161616;
-  --cine-muted: rgba(22, 22, 22, 0.55);
-  --cine-faint: rgba(22, 22, 22, 0.3);
+  /* Solid muted hex ≈ rgba(22,22,22,0.78) on cream — ≥4.5:1 for body/labels */
+  --cine-muted: #4a4a46;
+  --cine-faint: #6a6a64;
   --cine-line: rgba(22, 22, 22, 0.12);
   --cine-ink: #161616;
   --cine-ease: cubic-bezier(0.32, 0.72, 0, 1);
@@ -208,7 +209,7 @@
   font-size: 0.58rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(22, 22, 22, 0.45);
+  color: var(--cine-muted);
   animation: cine-preload-status-in 0.4s var(--cine-ease);
 }
 
@@ -229,7 +230,7 @@
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.7rem;
   letter-spacing: 0.12em;
-  color: rgba(0, 0, 0, 0.35);
+  color: var(--cine-faint);
   font-variant-numeric: tabular-nums;
 }
 
@@ -942,7 +943,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--cine-faint);
+  color: var(--cine-muted);
   z-index: 2;
 }
 
@@ -1185,7 +1186,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--cine-muted);
 }
 
 /* —— Companies / trusted logos —— */
@@ -1220,7 +1221,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(22, 22, 22, 0.45);
+  color: var(--cine-muted);
 }
 
 .cine-companies h2 {
@@ -1244,7 +1245,7 @@
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.55;
-  color: rgba(22, 22, 22, 0.58);
+  color: var(--cine-muted);
   max-width: 34ch;
 }
 
@@ -1311,13 +1312,13 @@
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.58rem;
   letter-spacing: 0.14em;
-  color: rgba(22, 22, 22, 0.28);
+  color: var(--cine-faint);
   transition: color 0.3s ease;
 }
 
 .cine-companies-tile:hover .cine-companies-index,
 .cine-companies-tile:focus-within .cine-companies-index {
-  color: rgba(22, 22, 22, 0.55);
+  color: var(--cine-muted);
 }
 
 .cine-companies-logo {
@@ -1393,7 +1394,7 @@
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.68rem;
   letter-spacing: 0.12em;
-  color: rgba(22, 22, 22, 0.45);
+  color: var(--cine-muted);
   margin-right: 0.35rem;
 }
 
@@ -1462,7 +1463,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(22, 22, 22, 0.45);
+  color: var(--cine-muted);
   max-width: 12ch;
   line-height: 1.4;
 }
@@ -1568,7 +1569,7 @@
 .cine-facts-sub {
   text-align: center;
   margin: 0.75rem 0 0;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--cine-muted);
   font-size: 0.95rem;
 }
 
@@ -1774,7 +1775,7 @@
   border: 0;
   border-bottom: 1px solid var(--cine-line);
   background: transparent;
-  color: rgba(22, 22, 22, 0.34);
+  color: var(--cine-muted);
   text-align: left;
   cursor: pointer;
   transition:
@@ -1784,7 +1785,7 @@
 
 .cine-reasons-rail-item:hover,
 .cine-reasons-rail-item:focus-visible {
-  color: rgba(22, 22, 22, 0.72);
+  color: var(--cine-fg);
   outline: none;
 }
 
@@ -1898,7 +1899,7 @@
   letter-spacing: 0.08em;
   line-height: 1.5;
   text-transform: uppercase;
-  color: rgba(22, 22, 22, 0.42);
+  color: var(--cine-muted);
 }
 
 @media (max-width: 959px) {
@@ -2172,8 +2173,8 @@
   color: #fff;
   padding: 0 0 4rem;
   overflow: hidden;
-  --cine-muted: rgba(255, 255, 255, 0.55);
-  --cine-faint: rgba(255, 255, 255, 0.28);
+  --cine-muted: rgba(255, 255, 255, 0.78);
+  --cine-faint: rgba(255, 255, 255, 0.55);
   --cine-line: rgba(255, 255, 255, 0.16);
 }
 
@@ -2280,11 +2281,11 @@
   font-size: 0.62rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.55);
   transition: color 0.45s var(--cine-ease);
 }
 
-.cine-forge-rail li.is-done { color: rgba(255, 255, 255, 0.45); }
+.cine-forge-rail li.is-done { color: rgba(255, 255, 255, 0.72); }
 .cine-forge-rail li.is-active { color: #fff; }
 .cine-forge-rail li.is-active span::before {
   content: "";
@@ -2320,7 +2321,7 @@
   font-size: 0.58rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.92);
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -3948,7 +3949,7 @@ html.has-agent-cursor .cine * {
 
 .cine-press-head h2 span {
   font-weight: 500;
-  color: rgba(22, 22, 22, 0.35);
+  color: var(--cine-muted);
 }
 
 .cine-press-sub {
@@ -4770,7 +4771,7 @@ html.has-agent-cursor .cine * {
     border-top: 0;
   }
 
-  .cine-reasons-rail > li {
+  .cine-reasons-rail-item {
     border-top: 1px solid var(--cine-line);
   }
 

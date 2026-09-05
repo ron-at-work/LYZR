@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "motion/react";
 import { useSmoothScroll } from "../motion/SmoothScrollProvider";
-import { AgentForgeScene } from "./AgentForgeScene";
+
+const AgentForgeScene = dynamic(
+  () => import("./AgentForgeScene").then((m) => m.AgentForgeScene),
+  { ssr: false },
+);
 
 gsap.registerPlugin(ScrollTrigger);
 

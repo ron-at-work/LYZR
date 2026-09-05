@@ -77,19 +77,17 @@ export function FooterWordmark() {
 
   return (
     <div className="cine-line-word font-display">
-      <div aria-hidden className="cine-line-word-stage">
-        <span className="cine-line-word-face" ref={faceRef}>
+      <div className="cine-line-word-stage">
+        <span aria-hidden className="cine-line-word-face" ref={faceRef}>
           LYZR
         </span>
-        <div className="cine-line-word-hits">
+        <div aria-hidden className="cine-line-word-hits">
           {Array.from({ length: LINE_COUNT }, (_, i) => (
-            <button
-              aria-label={`Pluck string ${i + 1}`}
+            <div
               className="cine-line-word-hit"
               key={i}
               onClick={() => pluck(i)}
               onPointerEnter={() => pluck(i)}
-              type="button"
             />
           ))}
         </div>

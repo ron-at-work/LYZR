@@ -7,18 +7,18 @@
 export function PhoneHeroVisual() {
   return (
     <figure className="cine-phone-visual" aria-hidden>
-      <picture>
-        <source srcSet="/lyzr-phone-hero-run.webp" type="image/webp" />
-        <img
-          alt=""
-          className="cine-phone-visual-img"
-          decoding="async"
-          draggable={false}
-          height={420}
-          src="/lyzr-phone-hero-run.gif"
-          width={420}
-        />
-      </picture>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        alt=""
+        className="cine-phone-visual-img"
+        decoding="async"
+        draggable={false}
+        fetchPriority="high"
+        height={360}
+        loading="eager"
+        src="/lyzr-phone-hero-run.webp"
+        width={360}
+      />
     </figure>
   );
 }

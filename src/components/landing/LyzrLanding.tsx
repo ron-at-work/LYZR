@@ -1,24 +1,51 @@
 'use client';
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SmoothScrollProvider, useSmoothScroll } from "./motion/SmoothScrollProvider";
 import { SoundProvider } from "./motion/SoundProvider";
-import { AgentCursor } from "./cinematic/AgentCursor";
-import { AwardsNewsSection } from "./cinematic/AwardsNewsSection";
-import { CapabilitiesStack } from "./cinematic/CapabilitiesStack";
-import { CeoMessageSection } from "./cinematic/CeoMessageSection";
-import { CinematicCta } from "./cinematic/CinematicCta";
 import { CinematicHero } from "./cinematic/CinematicHero";
-import { CompaniesSection } from "./cinematic/CompaniesSection";
 import { LandingNav } from "./cinematic/LandingNav";
-import { ManifestoSection } from "./cinematic/ManifestoSection";
-import { MarqueeSection } from "./cinematic/MarqueeSection";
 import { Preloader } from "./cinematic/Preloader";
-import { ProofSection } from "./cinematic/ProofSection";
-import { QuoteSection } from "./cinematic/QuoteSection";
-import { ReasonsSection } from "./cinematic/ReasonsSection";
-import { TrustSection } from "./cinematic/TrustSection";
+
+const AgentCursor = dynamic(
+  () => import("./cinematic/AgentCursor").then((m) => m.AgentCursor),
+  { ssr: false },
+);
+const AwardsNewsSection = dynamic(() =>
+  import("./cinematic/AwardsNewsSection").then((m) => m.AwardsNewsSection),
+);
+const CapabilitiesStack = dynamic(() =>
+  import("./cinematic/CapabilitiesStack").then((m) => m.CapabilitiesStack),
+);
+const CeoMessageSection = dynamic(() =>
+  import("./cinematic/CeoMessageSection").then((m) => m.CeoMessageSection),
+);
+const CinematicCta = dynamic(() =>
+  import("./cinematic/CinematicCta").then((m) => m.CinematicCta),
+);
+const CompaniesSection = dynamic(() =>
+  import("./cinematic/CompaniesSection").then((m) => m.CompaniesSection),
+);
+const ManifestoSection = dynamic(() =>
+  import("./cinematic/ManifestoSection").then((m) => m.ManifestoSection),
+);
+const MarqueeSection = dynamic(() =>
+  import("./cinematic/MarqueeSection").then((m) => m.MarqueeSection),
+);
+const ProofSection = dynamic(() =>
+  import("./cinematic/ProofSection").then((m) => m.ProofSection),
+);
+const QuoteSection = dynamic(() =>
+  import("./cinematic/QuoteSection").then((m) => m.QuoteSection),
+);
+const ReasonsSection = dynamic(() =>
+  import("./cinematic/ReasonsSection").then((m) => m.ReasonsSection),
+);
+const TrustSection = dynamic(() =>
+  import("./cinematic/TrustSection").then((m) => m.TrustSection),
+);
 
 function LandingInner() {
   const { scrollTo } = useSmoothScroll();

@@ -177,32 +177,48 @@ export function ReasonsSection() {
         </div>
 
         <div className="cine-reasons-board">
-          <ul className="cine-reasons-rail" role="tablist" aria-label="Enterprise reasons">
+          <div className="cine-reasons-rail" role="tablist" aria-label="Enterprise reasons">
             {REASONS.map((item, i) => (
-              <li key={item.index}>
-                <button
-                  type="button"
-                  role="tab"
-                  id={`reason-tab-${item.index}`}
-                  aria-selected={i === active}
-                  aria-controls="reason-panel"
-                  className={`cine-reasons-rail-item${i === active ? " is-active" : ""}`}
-                  onClick={() => setActive(i)}
-                  onMouseEnter={() => {
-                    setActive(i);
-                    playHover(0.7 + i * 0.08);
-                  }}
-                  onFocus={() => {
-                    setActive(i);
-                    playHover(0.7 + i * 0.08);
-                  }}
-                >
-                  <span className="cine-reasons-rail-num">{item.index}</span>
-                  <span className="cine-reasons-rail-title">{item.title}</span>
-                </button>
-              </li>
+              <button
+                type="button"
+                role="tab"
+                key={item.index}
+                id={`reason-tab-${item.index}`}
+                aria-selected={i === active}
+                aria-controls="reason-panel"
+                tabIndex={i === active ? 0 : -1}
+                className={`cine-reasons-rail-item${i === active ? " is-active" : ""}`}
+                onClick={() => setActive(i)}
+                onMouseEnter={() => {
+                  setActive(i);
+                  playHover(0.7 + i * 0.08);
+                }}
+                onFocus={() => {
+                  setActive(i);
+                  playHover(0.7 + i * 0.08);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Home" && e.key !== "End") {
+                    return;
+                  }
+                  e.preventDefault();
+                  let next = i;
+                  if (e.key === "ArrowDown") next = (i + 1) % REASONS.length;
+                  if (e.key === "ArrowUp") next = (i - 1 + REASONS.length) % REASONS.length;
+                  if (e.key === "Home") next = 0;
+                  if (e.key === "End") next = REASONS.length - 1;
+                  setActive(next);
+                  playHover(0.7 + next * 0.08);
+                  requestAnimationFrame(() => {
+                    document.getElementById(`reason-tab-${REASONS[next].index}`)?.focus();
+                  });
+                }}
+              >
+                <span className="cine-reasons-rail-num">{item.index}</span>
+                <span className="cine-reasons-rail-title">{item.title}</span>
+              </button>
             ))}
-          </ul>
+          </div>
 
           <div
             className="cine-reasons-panel"

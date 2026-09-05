@@ -212,7 +212,7 @@ export function QuoteSection() {
       </div>
 
       <div className={`cine-motion-stage${active ? " has-char" : ""}`}>
-        <div className="cine-motion-roster" role="list">
+        <div className="cine-motion-roster">
           {WORKFORCE_AGENTS.map((agent, i) => {
             const tone = TONES[i % TONES.length];
             const isLive = playingId === agent.id;
@@ -224,7 +224,6 @@ export function QuoteSection() {
                 onMouseEnter={() => {
                   playHover(0.85 + (i % 6) * 0.08);
                 }}
-                role="listitem"
               >
                 <div className="cine-agent-media" aria-hidden>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

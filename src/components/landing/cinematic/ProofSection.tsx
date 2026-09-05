@@ -14,7 +14,7 @@ const PROJECTS = [
     body: "Compose multi-agent workflows with the speed of a prototype and the discipline of production.",
     tag: "Build agents that ship",
     href: "https://www.lyzr.ai/",
-    image: "/landing/work-studio.jpg",
+    image: "/landing/work-studio.webp",
     index: "01",
   },
   {
@@ -22,7 +22,7 @@ const PROJECTS = [
     body: "Simulate behavior, cost, and failure modes before a single agent touches live traffic.",
     tag: "Prove before you prod",
     href: "https://www.lyzr.ai/",
-    image: "/landing/work-architect.jpg",
+    image: "/landing/work-architect.webp",
     index: "02",
   },
   {
@@ -30,7 +30,7 @@ const PROJECTS = [
     body: "Govern any framework, any model, any cloud. Policy, observability, and audit in one plane.",
     tag: "Govern at enterprise scale",
     href: "https://www.lyzr.ai/",
-    image: "/landing/work-control.jpg",
+    image: "/landing/work-control.webp",
     index: "03",
   },
 ] as const;
@@ -173,8 +173,18 @@ export function ProofSection() {
                     >
                       <div className="cine-work-reveal-inner">
                         <div className="cine-work-frame">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img alt="" src={p.image} />
+                          {isOpen || i === active ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              alt=""
+                              decoding="async"
+                              height={933}
+                              loading={i === 0 ? "eager" : "lazy"}
+                              sizes="(max-width: 960px) 92vw, 1100px"
+                              src={p.image}
+                              width={1400}
+                            />
+                          ) : null}
                           <div className="cine-work-frame-meta">
                             <span>{p.index}</span>
                             <span>{p.title}</span>

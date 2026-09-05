@@ -83,12 +83,12 @@ export function HeroMark({ className, blast = false }: Props) {
     let screenMul = termScreenMul();
 
     const renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: false,
       alpha: true,
       powerPreference: "high-performance",
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: false,
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.setSize(w, h, false);
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -383,11 +383,11 @@ export function HeroMark({ className, blast = false }: Props) {
         });
       }
     };
-    spawnAgents(48);
+    spawnAgents(24);
     spawnTerms();
 
     // Spark trail points
-    const sparkCount = 140;
+    const sparkCount = 64;
     const sparkPos = new Float32Array(sparkCount * 3);
     const sparkGeo = new THREE.BufferGeometry();
     sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos, 3));
@@ -715,10 +715,29 @@ export function HeroMark({ className, blast = false }: Props) {
     window.addEventListener("pointermove", onMove, { passive: true });
 
     let raf = 0;
+    let visible = true;
+    let pageVisible = !document.hidden;
     const clock = new THREE.Clock();
+    let draw: () => void = () => undefined;
 
-    const draw = () => {
+    const onVisibility = () => {
+      pageVisible = !document.hidden;
+      if (pageVisible && !disposed && !raf) raf = requestAnimationFrame(draw);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = Boolean(entry?.isIntersecting);
+        if (visible && pageVisible && !disposed && !raf) raf = requestAnimationFrame(draw);
+      },
+      { rootMargin: "10% 0px", threshold: 0.01 },
+    );
+
+    draw = () => {
+      raf = 0;
       if (disposed) return;
+      if (!pageVisible || !visible) return;
       const t = clock.getElapsedTime();
 
       state.holding = blastRef.current;
@@ -953,8 +972,9 @@ export function HeroMark({ className, blast = false }: Props) {
         mount.dataset.merge = m.toFixed(3);
       }
       renderer.render(scene, camera);
-      if (!reduce) raf = requestAnimationFrame(draw);
+      if (!reduce && pageVisible && visible) raf = requestAnimationFrame(draw);
     };
+    io.observe(mount);
     draw();
 
     const onResize = () => {
@@ -973,6 +993,8 @@ export function HeroMark({ className, blast = false }: Props) {
       disposed = true;
       window.clearTimeout(refreshT);
       cancelAnimationFrame(raf);
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       triggers.forEach((t) => t.kill());
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("resize", onResize);

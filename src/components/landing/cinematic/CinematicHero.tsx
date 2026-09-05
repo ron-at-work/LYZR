@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import dynamic from "next/dynamic";
 import {
   useCallback,
   useEffect,
@@ -10,9 +11,16 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { useSound } from "../motion/SoundProvider";
-import { HeroMark } from "./HeroMark";
-import { InteractiveLines } from "./InteractiveLines";
 import { PhoneHeroVisual } from "./PhoneHeroVisual";
+
+const HeroMark = dynamic(
+  () => import("./HeroMark").then((m) => m.HeroMark),
+  { ssr: false },
+);
+const InteractiveLines = dynamic(
+  () => import("./InteractiveLines").then((m) => m.InteractiveLines),
+  { ssr: false },
+);
 
 /** Rotating emphasis — Lyzr product outcomes, not agency filler. */
 const WORDS = ["production.", "your VPC.", "enterprise.", "governance.", "scale."] as const;
@@ -28,6 +36,8 @@ export function CinematicHero() {
   const [word, setWord] = useState(0);
   /** Phone: skip WebGL mark — typography-first hero. */
   const [showMark, setShowMark] = useState(false);
+  /** Defer Three.js until idle so LCP/TBT aren't blocked by WebGL boot. */
+  const [markReady, setMarkReady] = useState(false);
   const holdingRef = useRef(false);
   const timers = useRef<number[]>([]);
   const hapticRef = useRef(0);
@@ -39,6 +49,24 @@ export function CinematicHero() {
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
+
+  useEffect(() => {
+    if (!showMark) {
+      setMarkReady(false);
+      return;
+    }
+    let cancelled = false;
+    const arm = () => {
+      if (!cancelled) setMarkReady(true);
+    };
+    const ric = window.requestIdleCallback?.(arm, { timeout: 900 });
+    const fallback = window.setTimeout(arm, 400);
+    return () => {
+      cancelled = true;
+      if (ric != null) window.cancelIdleCallback?.(ric);
+      window.clearTimeout(fallback);
+    };
+  }, [showMark]);
 
   const clearHoldTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -128,15 +156,15 @@ export function CinematicHero() {
 
   return (
     <section className={`cine-hero${showMark ? "" : " is-phone"}`} id="top">
-      {showMark ? <HeroMark blast={blast} className="cine-symbol-canvas" /> : null}
-      {showMark ? <InteractiveLines blast={blast} /> : null}
+      {showMark && markReady ? <HeroMark blast={blast} className="cine-symbol-canvas" /> : null}
+      {showMark && markReady ? <InteractiveLines blast={blast} /> : null}
 
       <div className="cine-hero-ui">
         <div className="cine-hero-left">
           <p className="cine-hero-kicker">Lyzr · Agent infrastructure</p>
           <motion.h1
             animate={{ opacity: 1, y: 0 }}
-            initial={reduce ? false : { opacity: 0, y: 36 }}
+            initial={false}
             transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
           >
             <span className="cine-hero-line">Take AI agents to</span>
@@ -158,7 +186,7 @@ export function CinematicHero() {
           <motion.p
             animate={{ opacity: 1, y: 0 }}
             className="cine-hero-lead"
-            initial={reduce ? false : { opacity: 0, y: 20 }}
+            initial={false}
             transition={{ delay: 0.08, duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           >
             The enterprise platform to design, build, simulate, deploy, and govern a secure AI
@@ -168,7 +196,7 @@ export function CinematicHero() {
           <motion.div
             animate={{ opacity: 1, y: 0 }}
             className="cine-cta-row"
-            initial={reduce ? false : { opacity: 0, y: 20 }}
+            initial={false}
             transition={{ delay: 0.14, duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           >
             <a className="cine-link" href="https://www.lyzr.ai/book-demo/">

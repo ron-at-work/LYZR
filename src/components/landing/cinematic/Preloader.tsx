@@ -15,7 +15,7 @@ const LINES = [
   "Agents standing by",
 ] as const;
 
-const DURATION_MS = 1400;
+const DURATION_MS = 900;
 
 export function Preloader({ onDone }: Props) {
   const [progress, setProgress] = useState(0);

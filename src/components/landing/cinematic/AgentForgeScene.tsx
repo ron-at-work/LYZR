@@ -47,18 +47,37 @@ export function AgentForgeScene({ className, progressRef }: Props) {
     const empty = new Image();
     const using = new Image();
     const emerges = new Image();
-    empty.src = "/lyzr-studio-empty-alpha.png?v=1";
-    using.src = "/lyzr-human-using-studio-alpha.png?v=1";
-    emerges.src = "/lyzr-agent-emerges-alpha.png?v=1";
     let ready = 0;
     const mark = () => {
       ready += 1;
+    };
+    const loadImages = () => {
+      empty.src = "/lyzr-studio-empty-alpha.webp";
+      using.src = "/lyzr-human-using-studio-alpha.webp";
+      emerges.src = "/lyzr-agent-emerges-alpha.webp";
     };
     [empty, using, emerges].forEach((img) => {
       img.decoding = "async";
       img.onload = mark;
       img.onerror = mark;
     });
+
+    let imagesArmed = false;
+    const armImages = () => {
+      if (imagesArmed || disposed) return;
+      imagesArmed = true;
+      loadImages();
+    };
+    const nearIo = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          armImages();
+          nearIo.disconnect();
+        }
+      },
+      { rootMargin: "320px 0px" },
+    );
+    nearIo.observe(mount);
 
     const buf = document.createElement("canvas");
     const bctx = buf.getContext("2d")!;
@@ -75,7 +94,7 @@ export function AgentForgeScene({ className, progressRef }: Props) {
     const resize = () => {
       w = Math.max(1, mount.clientWidth);
       h = Math.max(1, mount.clientHeight);
-      dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -384,6 +403,7 @@ export function AgentForgeScene({ className, progressRef }: Props) {
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
+      nearIo.disconnect();
       ro.disconnect();
       window.removeEventListener("resize", resize);
       if (canvas.parentNode === mount) mount.removeChild(canvas);
