@@ -10,7 +10,7 @@ import { InteractiveLines } from "./InteractiveLines";
 const WORDS = ["production.", "your VPC.", "enterprise.", "governance.", "scale."] as const;
 
 /** Matches HeroMark buzz window before 3D A/I expand. */
-const BUZZ_MS = 780;
+const BUZZ_MS = 550;
 const HAPTIC_TICK_MS = 55;
 
 export function CinematicHero() {
@@ -115,7 +115,7 @@ export function CinematicHero() {
 
       <div className="cine-hero-ui">
         <div
-          aria-label="Hold to expand into LYZR"
+          aria-label="Hold to explode into agents"
           className="cine-mark-hit"
           role="button"
           tabIndex={0}
@@ -183,7 +183,7 @@ export function CinematicHero() {
         <p className="cine-hold" {...holdHandlers} onPointerLeave={releaseHold}>
           Scroll to explore
           <br />
-          Hold the mark — transforms into LYZR
+          Hold the mark — explodes into agents
         </p>
 
         <aside className="cine-hero-meta">

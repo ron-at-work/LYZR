@@ -73,7 +73,7 @@ export function LandingNav() {
         headerRef={headerRef}
         mobileOpen={mobileOpen}
         mobileSection={mobileSection}
-        navSolid
+        navSolid={navSolid}
         onDismissBanner={() => setBannerOpen(false)}
         openNav={openNav}
         openNavMenu={openNavMenu}

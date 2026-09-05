@@ -18,28 +18,32 @@ type Shard = {
   mesh: THREE.Object3D;
   /** Centroid in group space (geometry still includes this offset). */
   homePos: THREE.Vector3;
-  /** Where this plate flies while reforming into A / I. */
-  aiPos: THREE.Vector3;
   /** Extra radial push multiplier (slight depth variance, Trionn-style). */
   expandMul: number;
   /** Tiny z lift so plates separate in depth without tumbling. */
   depthLift: number;
   delay: number;
   shapeIdx: number;
+  /** Per-shard explode velocity (world-ish, group local). */
+  boomVel: THREE.Vector3;
+  boomSpin: THREE.Vector3;
   isEdge?: boolean;
 };
 
-type WordLetter = {
+type AgentBit = {
   mesh: THREE.Mesh;
-  edge: THREE.LineSegments;
-  homeX: number;
+  vel: THREE.Vector3;
+  spin: THREE.Vector3;
+  seed: THREE.Vector3;
+  phase: number;
+  size: number;
 };
 
 /**
  * 3D Lyzr mark only (inner glyph — no plate/squircle).
  * Warm-white theme: dark glass that expands on scroll like Trionn —
- * silhouette stays, gaps open (radial fail-open), no explode tumble.
- * Hold → haptic buzz → same mark reforms into “LYZR”.
+ * silhouette stays, gaps open (radial fail-open).
+ * Hold → haptic buzz → mark explodes into agent particles.
  */
 export function HeroMark({ className, blast = false }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -146,91 +150,136 @@ export function HeroMark({ className, blast = false }: Props) {
 
     const group = new THREE.Group();
     scene.add(group);
-    const wordRoot = new THREE.Group();
-    group.add(wordRoot);
+    const agentRoot = new THREE.Group();
+    scene.add(agentRoot);
+    agentRoot.visible = false;
     const shards: Shard[] = [];
-    const wordLetters: WordLetter[] = [];
+    const agents: AgentBit[] = [];
     const geos: THREE.BufferGeometry[] = [floorGeo];
     const mats: THREE.Material[] = [inkMat, edgeMat, floorMat];
 
-    /** Blocky glyph letters — same stepped language as the 3D mark. */
-    const shapeL = () => {
-      const s = new THREE.Shape();
-      s.moveTo(0, 0);
-      s.lineTo(56, 0);
-      s.lineTo(56, 16);
-      s.lineTo(20, 16);
-      s.lineTo(20, 112);
-      s.lineTo(0, 112);
-      s.closePath();
-      return s;
+    // Soft agent-node materials (ink + warm/cool accents)
+    const agentInk = inkMat.clone();
+    agentInk.transparent = true;
+    agentInk.opacity = 0.92;
+    agentInk.emissiveIntensity = 0.2;
+    const agentWarm = new THREE.MeshPhysicalMaterial({
+      color: 0x1a1a1a,
+      emissive: new THREE.Color(0xff6a2a),
+      emissiveIntensity: 0.55,
+      metalness: 0.4,
+      roughness: 0.3,
+      clearcoat: 0.7,
+      envMap: cubeRT.texture,
+      envMapIntensity: 1.1,
+      transparent: true,
+      opacity: 0.9,
+    });
+    const agentCool = new THREE.MeshPhysicalMaterial({
+      color: 0x141820,
+      emissive: new THREE.Color(0x6a9fff),
+      emissiveIntensity: 0.45,
+      metalness: 0.5,
+      roughness: 0.28,
+      clearcoat: 0.8,
+      envMap: cubeRT.texture,
+      envMapIntensity: 1.2,
+      transparent: true,
+      opacity: 0.88,
+    });
+    mats.push(agentInk, agentWarm, agentCool);
+
+    const sphereGeo = new THREE.SphereGeometry(1, 16, 12);
+    const octaGeo = new THREE.OctahedronGeometry(1, 0);
+    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+    geos.push(sphereGeo, octaGeo, boxGeo);
+
+    const spawnAgents = (count: number) => {
+      for (let i = 0; i < count; i += 1) {
+        const kind = i % 5;
+        const geo = kind === 0 || kind === 1 ? sphereGeo : kind === 2 ? octaGeo : boxGeo;
+        const mat =
+          kind === 0 || kind === 3 ? agentInk.clone() : kind === 1 || kind === 4 ? agentWarm.clone() : agentCool.clone();
+        mats.push(mat);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.frustumCulled = false;
+        mesh.visible = false;
+        const size = 0.035 + Math.random() * 0.055;
+        mesh.scale.setScalar(size);
+        agentRoot.add(mesh);
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = 0.15 + Math.random() * 0.35;
+        agents.push({
+          mesh,
+          vel: new THREE.Vector3(
+            Math.sin(phi) * Math.cos(theta) * (1.2 + Math.random() * 2.4),
+            Math.sin(phi) * Math.sin(theta) * (1.2 + Math.random() * 2.4),
+            Math.cos(phi) * (1.0 + Math.random() * 2.0),
+          ),
+          spin: new THREE.Vector3(
+            (Math.random() - 0.5) * 8,
+            (Math.random() - 0.5) * 8,
+            (Math.random() - 0.5) * 8,
+          ),
+          seed: new THREE.Vector3(
+            Math.sin(phi) * Math.cos(theta) * r,
+            Math.sin(phi) * Math.sin(theta) * r,
+            Math.cos(phi) * r,
+          ),
+          phase: Math.random() * Math.PI * 2,
+          size,
+        });
+      }
     };
-    const shapeY = () => {
-      const s = new THREE.Shape();
-      s.moveTo(0, 112);
-      s.lineTo(18, 112);
-      s.lineTo(28, 72);
-      s.lineTo(38, 112);
-      s.lineTo(56, 112);
-      s.lineTo(36, 56);
-      s.lineTo(36, 0);
-      s.lineTo(20, 0);
-      s.lineTo(20, 56);
-      s.closePath();
-      return s;
-    };
-    const shapeZ = () => {
-      const s = new THREE.Shape();
-      s.moveTo(0, 96);
-      s.lineTo(0, 112);
-      s.lineTo(56, 112);
-      s.lineTo(56, 96);
-      s.lineTo(24, 96);
-      s.lineTo(56, 16);
-      s.lineTo(56, 0);
-      s.lineTo(0, 0);
-      s.lineTo(0, 16);
-      s.lineTo(32, 16);
-      s.closePath();
-      return s;
-    };
-    const shapeR = () => {
-      const s = new THREE.Shape();
-      s.moveTo(0, 0);
-      s.lineTo(18, 0);
-      s.lineTo(18, 48);
-      s.lineTo(32, 48);
-      s.lineTo(48, 0);
-      s.lineTo(56, 0);
-      s.lineTo(38, 52);
-      s.lineTo(44, 56);
-      s.lineTo(48, 68);
-      s.lineTo(48, 96);
-      s.lineTo(44, 108);
-      s.lineTo(32, 112);
-      s.lineTo(0, 112);
-      s.closePath();
-      const hole = new THREE.Path();
-      hole.moveTo(18, 64);
-      hole.lineTo(32, 64);
-      hole.lineTo(34, 72);
-      hole.lineTo(34, 92);
-      hole.lineTo(30, 96);
-      hole.lineTo(18, 96);
-      hole.closePath();
-      s.holes.push(hole);
-      return s;
-    };
+    spawnAgents(72);
+
+    // Spark trail points
+    const sparkCount = 140;
+    const sparkPos = new Float32Array(sparkCount * 3);
+    const sparkGeo = new THREE.BufferGeometry();
+    sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos, 3));
+    geos.push(sparkGeo);
+    const sparkMat = new THREE.PointsMaterial({
+      color: 0xff8a4a,
+      size: 0.045,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+    mats.push(sparkMat);
+    const sparks = new THREE.Points(sparkGeo, sparkMat);
+    sparks.frustumCulled = false;
+    agentRoot.add(sparks);
+    const sparkVel: THREE.Vector3[] = [];
+    for (let i = 0; i < sparkCount; i += 1) {
+      sparkVel.push(
+        new THREE.Vector3(
+          (Math.random() - 0.5) * 5,
+          (Math.random() - 0.5) * 5,
+          (Math.random() - 0.5) * 5,
+        ),
+      );
+      sparkPos[i * 3] = 0;
+      sparkPos[i * 3 + 1] = 0;
+      sparkPos[i * 3 + 2] = 0;
+    }
 
     const pushShard = (mesh: THREE.Object3D, shapeIdx: number, isEdge = false) => {
       shards.push({
         mesh,
         homePos: new THREE.Vector3(0, 0, 0),
-        aiPos: new THREE.Vector3(0, 0, 0),
         expandMul: isEdge ? 1 : 0.96 + Math.random() * 0.08,
         depthLift: isEdge ? 0 : (Math.random() - 0.5) * 0.22,
         delay: isEdge ? 0 : shapeIdx * 0.012,
         shapeIdx,
+        boomVel: new THREE.Vector3(),
+        boomSpin: new THREE.Vector3(
+          (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 3,
+        ),
         isEdge,
       });
     };
@@ -357,87 +406,30 @@ export function HeroMark({ className, blast = false }: Props) {
           if (s.isEdge) {
             s.expandMul = 1;
             s.depthLift = 0;
+            s.boomVel.set(
+              (Math.random() - 0.5) * 200,
+              (Math.random() - 0.5) * 200,
+              (Math.random() - 0.5) * 120,
+            );
             return;
           }
           const r = Math.hypot(c.x, c.y);
           // Outer plates open a touch more than the core — still one silhouette
           s.expandMul = 0.96 + Math.min(0.18, r * 0.001) + Math.random() * 0.04;
           s.depthLift = (Math.random() - 0.5) * 0.2;
-        });
-
-        // Same mark reforms into “LYZR” — same ink, same group, no hang/strings.
-        // Counter the group's Y-flip so letters read upright.
-        wordRoot.scale.set(1, -1, 1);
-
-        const buildLetter = (shape: THREE.Shape, homeX: number) => {
-          const extrude: THREE.ExtrudeGeometryOptions = {
-            depth: 42,
-            bevelEnabled: true,
-            bevelThickness: 5,
-            bevelSize: 4,
-            bevelSegments: 3,
-            curveSegments: 4,
-          };
-          const geo = new THREE.ExtrudeGeometry(shape, extrude);
-          geos.push(geo);
-          geo.computeBoundingBox();
-          geo.computeVertexNormals();
-          const c = new THREE.Vector3();
-          const sz = new THREE.Vector3();
-          geo.boundingBox!.getCenter(c);
-          geo.boundingBox!.getSize(sz);
-          geo.translate(-c.x, -c.y, -c.z);
-          const fit = (size.y * 0.38) / Math.max(sz.y, 1);
-          geo.scale(fit, fit, fit);
-
-          const mat = inkMat.clone();
-          mat.transparent = true;
-          mat.opacity = 0;
-          mat.emissiveIntensity = 0.08;
-          mats.push(mat);
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.frustumCulled = false;
-          mesh.visible = false;
-          mesh.position.set(homeX, 0, 8);
-          wordRoot.add(mesh);
-
-          const edges = new THREE.EdgesGeometry(geo, 22);
-          geos.push(edges);
-          const edge = new THREE.LineSegments(edges, edgeMat.clone());
-          mats.push(edge.material as THREE.Material);
-          (edge.material as THREE.LineBasicMaterial).transparent = true;
-          (edge.material as THREE.LineBasicMaterial).opacity = 0;
-          edge.visible = false;
-          edge.frustumCulled = false;
-          edge.position.copy(mesh.position);
-          wordRoot.add(edge);
-
-          wordLetters.push({ mesh, edge, homeX });
-        };
-
-        // Y-scale mirrors X — +X reads left on screen. Lay out L→Y→Z→R left to right.
-        const gap = size.x * 0.2;
-        const xs = [gap * 1.55, gap * 0.52, -gap * 0.52, -gap * 1.55];
-        buildLetter(shapeL(), xs[0]);
-        buildLetter(shapeY(), xs[1]);
-        buildLetter(shapeZ(), xs[2]);
-        buildLetter(shapeR(), xs[3]);
-
-        // Plates fly toward nearest letter slot while LYZR fades in
-        const plates = shards.filter((s) => !s.isEdge);
-        plates.sort((a, b) => a.homePos.x - b.homePos.x);
-        plates.forEach((s, i) => {
-          const slot = xs[Math.min(xs.length - 1, Math.floor((i / Math.max(1, plates.length)) * xs.length))];
-          s.aiPos.set(slot - s.homePos.x, -s.homePos.y, 16 + i * 5);
-          const edge = shards.find((e) => e.isEdge && e.shapeIdx === s.shapeIdx);
-          if (edge) edge.aiPos.copy(s.aiPos);
+          // Explode outward from centroid
+          const len = Math.max(0.001, r);
+          s.boomVel.set(
+            (c.x / len) * (180 + Math.random() * 220),
+            (c.y / len) * (180 + Math.random() * 220),
+            (Math.random() - 0.5) * 160,
+          );
         });
 
         const s = 2.55 / Math.max(size.x, size.y, 0.001);
         state.baseScale = s;
         state.built = true;
         group.scale.set(s, -s, s);
-        // Pivot = visual center → rotate in place
         group.position.set(0, 0.08, 0);
         state.baseY = 0.08;
         mount.style.opacity = "1";
@@ -579,18 +571,18 @@ export function HeroMark({ className, blast = false }: Props) {
       state.holding = blastRef.current;
       if (state.holding) {
         state.holdTime += 1 / 60;
-        // Hard haptic buzz first — then logo morphs into A / I
-        if (state.holdTime < 0.78) {
+        // Buzz → explode into agent particles
+        if (state.holdTime < 0.55) {
           state.vibrateAmt = 1;
           state.clickBurst = 0;
         } else {
-          state.vibrateAmt = Math.max(0.08, state.vibrateAmt * 0.86);
-          state.clickBurst = Math.min(1, state.clickBurst + 0.055);
+          state.vibrateAmt = Math.max(0.05, state.vibrateAmt * 0.88);
+          state.clickBurst = Math.min(1, state.clickBurst + 0.048);
         }
       } else {
         state.holdTime = 0;
         state.vibrateAmt = Math.max(0, state.vibrateAmt - 0.12);
-        state.clickBurst = Math.max(0, state.clickBurst - 0.03);
+        state.clickBurst = Math.max(0, state.clickBurst - 0.035);
       }
 
       state.scrollProgress += (state.targetScrollProgress - state.scrollProgress) * 0.12;
@@ -602,53 +594,48 @@ export function HeroMark({ className, blast = false }: Props) {
       else state.introAmt = 0;
 
       const holdEnergy = state.scrollProgress < 0.12 ? state.clickBurst : 0;
-      const p = Math.max(state.scrollProgress, holdEnergy, state.introAmt);
+      const p = Math.max(state.scrollProgress, holdEnergy * 0.35, state.introAmt);
       const m = state.mergeProgress;
+      const boom = state.scrollProgress < 0.14 ? state.clickBurst : 0;
+      const boomE = boom * boom * (3 - 2 * boom);
 
-      // Gentle yaw around the mark's own center (not orbit)
-      state.rotY += reduce ? 0 : 0.0028 * (1 - m * 0.7);
-      const targetRotX = 0.12 + 0.14 * state.mouseY * (1 - m);
-      const targetRotY = state.rotY + 0.16 * state.mouseX * (1 - m);
-      group.rotation.x += (targetRotX - group.rotation.x) * 0.06;
-      group.rotation.y += (targetRotY - group.rotation.y) * 0.06;
-
-      // Soft settle + About orbit path (right → hold → center → down)
-      // clickBurst = mark reforming into A / I (after buzz)
-      const morph = state.scrollProgress < 0.12 ? state.clickBurst : 0;
-      const morphE = morph * morph * (3 - 2 * morph);
+      // Gentle yaw — keep spinning unless fully exploded
+      if (boomE < 0.85) {
+        state.rotY += reduce ? 0 : 0.0028 * (1 - m * 0.7);
+        const targetRotX = 0.12 + 0.14 * state.mouseY * (1 - m);
+        const targetRotY = state.rotY + 0.16 * state.mouseX * (1 - m);
+        group.rotation.x += (targetRotX - group.rotation.x) * 0.06;
+        group.rotation.y += (targetRotY - group.rotation.y) * 0.06;
+      }
 
       if (state.built) {
-        // Whole-mark haptic shake while buzzing
-        const gVib = state.vibrateAmt * (1 - morphE * 0.5);
+        const gVib = state.vibrateAmt * (1 - boomE * 0.4);
         const gx = Math.sin(t * 92) * 0.028 * gVib + Math.sin(t * 151) * 0.012 * gVib;
         const gy = Math.cos(t * 107) * 0.024 * gVib + Math.cos(t * 173) * 0.01 * gVib;
-        // Soft settle once reformed into LYZR
-        const hang =
-          morphE *
-          (Math.sin(t * 2.4) * 0.008 + Math.sin(t * 3.1 + 1.2) * 0.005);
-        group.position.x = state.pathX * (1 - m) + gx + hang;
+        group.position.x = state.pathX * (1 - m) + gx;
         group.position.y = state.baseY + state.pathY * (1 - m) - m * 0.55 - p * 0.08 + gy;
         group.position.z = -m * 2.4;
         const bs = state.baseScale * state.aboutScale;
-        // Slight overall grow while open / morphing into LYZR
-        const openScale = 1 + p * 0.1 + morphE * 0.06;
+        const openScale = 1 + p * 0.1 + boomE * 0.15;
         const mergeScale = (1 - m * 0.42) * openScale;
         group.scale.set(bs * mergeScale, -bs * mergeScale, bs * mergeScale);
-        group.rotation.z += (hang * 0.5 - group.rotation.z) * 0.08;
         group.visible = true;
       }
 
-      // High-freq chatter = haptic feel
+      // Sync agent cloud to mark position
+      agentRoot.position.set(group.position.x, group.position.y, group.position.z + 0.2);
+      agentRoot.visible = boomE > 0.05;
+
       state.vibratePhase += 3.6 + state.vibrateAmt * 4.2;
       const openAmt = 1.55;
       shards.forEach((e) => {
         const local = Math.max(0, Math.min(1, (p - e.delay) / Math.max(0.001, 1 - e.delay)));
         const eased = local * local * (3 - 2 * local);
-        // Open less while reforming into LYZR
-        const scale = 1 + openAmt * eased * e.expandMul * (1 - morphE * 0.75);
+        // Scroll = soft fail-open; hold boom = hard explode
+        const scale = 1 + openAmt * eased * e.expandMul * (1 - boomE * 0.25);
         const idleX = 0.006 * Math.sin(0.35 * t + e.shapeIdx) * (1 - p) * (1 - m);
         const idleY = 0.005 * Math.cos(0.3 * t + e.shapeIdx) * (1 - p) * (1 - m);
-        const vib = 0.155 * state.vibrateAmt * (1 - morphE * 0.85);
+        const vib = 0.155 * state.vibrateAmt * (1 - boomE * 0.7);
         const vx =
           Math.sin(state.vibratePhase * 1.7 + 28 * e.delay + e.shapeIdx * 2.1) * vib +
           Math.sin(state.vibratePhase * 3.1 + e.shapeIdx) * vib * 0.35;
@@ -657,26 +644,22 @@ export function HeroMark({ className, blast = false }: Props) {
           Math.cos(state.vibratePhase * 2.7 + e.delay * 11) * vib * 0.3;
         const vz = Math.sin(state.vibratePhase * 2.2 + e.delay * 9) * vib * 0.75;
 
-        const rx = e.homePos.x * (scale - 1) + idleX + vx;
-        const ry = e.homePos.y * (scale - 1) + idleY + vy;
-        const rz = e.homePos.z * (scale - 1) + e.depthLift * eased + vz;
+        const rx = e.homePos.x * (scale - 1) + idleX + vx + e.boomVel.x * boomE;
+        const ry = e.homePos.y * (scale - 1) + idleY + vy + e.boomVel.y * boomE;
+        const rz = e.homePos.z * (scale - 1) + e.depthLift * eased + vz + e.boomVel.z * boomE;
 
-        // Plates pull into A / I slots, then dissolve into letter forms
-        e.mesh.position.set(
-          rx * (1 - morphE) + e.aiPos.x * morphE,
-          ry * (1 - morphE) + e.aiPos.y * morphE,
-          rz * (1 - morphE) + e.aiPos.z * morphE,
-        );
+        e.mesh.position.set(rx, ry, rz);
 
         if (!e.isEdge) {
-          e.mesh.rotation.x = e.homePos.y * 0.00008 * eased * (1 - morphE);
-          e.mesh.rotation.y = -e.homePos.x * 0.00006 * eased * (1 - morphE);
-          e.mesh.rotation.z = 0;
-          const shrink = 1 - morphE * 0.92;
-          e.mesh.scale.set(shrink, shrink, shrink);
+          e.mesh.rotation.x =
+            e.homePos.y * 0.00008 * eased * (1 - boomE) + e.boomSpin.x * boomE;
+          e.mesh.rotation.y =
+            -e.homePos.x * 0.00006 * eased * (1 - boomE) + e.boomSpin.y * boomE;
+          e.mesh.rotation.z = e.boomSpin.z * boomE;
+          e.mesh.scale.set(1, 1, 1);
         } else {
-          e.mesh.rotation.set(0, 0, 0);
-          e.mesh.scale.set(1 - morphE, 1 - morphE, 1 - morphE);
+          e.mesh.rotation.set(e.boomSpin.x * boomE, e.boomSpin.y * boomE, e.boomSpin.z * boomE);
+          e.mesh.scale.set(1, 1, 1);
         }
 
         if (!e.isEdge && e.mesh instanceof THREE.Mesh) {
@@ -685,50 +668,69 @@ export function HeroMark({ className, blast = false }: Props) {
             0.06 +
             p * 0.45 * (1 - m) +
             m * 0.02 +
-            state.vibrateAmt * 0.55 * (1 - morphE) +
-            morphE * 0.4;
-          // Dissolve plates as LYZR takes over
-          mat.opacity = Math.max(0, (1 - morphE * 1.05) * Math.max(0.08, 1 - m * 0.78));
+            state.vibrateAmt * 0.55 * (1 - boomE) +
+            boomE * 0.9;
+          mat.opacity = Math.max(0.06, (1 - boomE * 0.55) * Math.max(0.08, 1 - m * 0.78));
           mat.transparent = true;
-          mat.depthWrite = m < 0.55 && morphE < 0.85;
+          mat.depthWrite = m < 0.55 && boomE < 0.75;
           mat.roughness = 0.22 + m * 0.55;
-          mat.envMapIntensity = 1.35 * (1 - m * 0.85);
+          mat.envMapIntensity = 1.35 * (1 - m * 0.85) + boomE * 0.4;
           warm.intensity =
             1.0 +
             p * 2.8 * (1 - m) +
-            state.vibrateAmt * 1.6 * (1 - morphE) +
-            morphE * 2.0;
+            state.vibrateAmt * 1.6 * (1 - boomE) +
+            boomE * 3.2;
         }
       });
 
-      // Reformed mark = LYZR in the same 3D block form (centered, no hang)
-      wordLetters.forEach((letter, i) => {
-        const show = morphE > 0.08;
-        letter.mesh.visible = show;
-        letter.edge.visible = show;
-        if (!show) return;
-        const mat = letter.mesh.material as THREE.MeshPhysicalMaterial;
-        const eMat = letter.edge.material as THREE.LineBasicMaterial;
-        const reveal = Math.max(0, Math.min(1, (morphE - 0.08 - i * 0.04) / 0.5));
-        const revE = reveal * reveal * (3 - 2 * reveal);
-        mat.opacity = revE;
-        mat.emissiveIntensity = 0.1 + revE * 0.65 + state.vibrateAmt * 0.2;
-        eMat.opacity = revE * 0.3;
-        const pop = 0.82 + revE * 0.18;
-        const buzz =
-          Math.sin(t * 18 + i) * 0.008 * state.vibrateAmt * (1 - revE * 0.5);
-        letter.mesh.position.set(letter.homeX + buzz * 20, buzz * 12, 8);
-        letter.mesh.rotation.z = buzz * 0.4;
-        letter.mesh.scale.set(pop, pop, pop);
-        letter.edge.position.copy(letter.mesh.position);
-        letter.edge.rotation.copy(letter.mesh.rotation);
-        letter.edge.scale.copy(letter.mesh.scale);
+      // —— Agent particles (nodes + sparks) ——
+      agents.forEach((a, i) => {
+        const live = boomE > 0.08;
+        a.mesh.visible = live;
+        if (!live) return;
+        const reveal = Math.max(0, Math.min(1, (boomE - 0.08) / 0.4));
+        const flight = boomE;
+        // Burst out, then soft orbital drift
+        const ox =
+          a.seed.x +
+          a.vel.x * flight * 0.55 +
+          Math.sin(t * 1.4 + a.phase) * 0.12 * reveal;
+        const oy =
+          a.seed.y +
+          a.vel.y * flight * 0.55 +
+          Math.cos(t * 1.1 + a.phase * 1.3) * 0.1 * reveal;
+        const oz =
+          a.seed.z +
+          a.vel.z * flight * 0.45 +
+          Math.sin(t * 0.9 + i) * 0.08 * reveal;
+        a.mesh.position.set(ox, oy, oz);
+        a.mesh.rotation.x += a.spin.x * 0.016;
+        a.mesh.rotation.y += a.spin.y * 0.016;
+        a.mesh.rotation.z += a.spin.z * 0.016;
+        const pop = a.size * (0.55 + reveal * 0.7 + Math.sin(t * 3 + a.phase) * 0.08);
+        a.mesh.scale.setScalar(pop);
+        const mat = a.mesh.material as THREE.MeshPhysicalMaterial;
+        mat.opacity = 0.15 + reveal * 0.75;
+        mat.emissiveIntensity = 0.25 + reveal * 0.85 + state.vibrateAmt * 0.2;
       });
 
-      edgeMat.opacity = 0.22 * (1 - Math.min(1, p * 1.35)) * (1 - m) * (1 - morphE);
-      floor.material.opacity = 0.45 * (1 - Math.min(1, p * 0.85)) * (1 - m) * (1 - morphE * 0.6);
+      // Sparks
+      sparkMat.opacity = boomE > 0.12 ? Math.min(0.95, boomE * 1.1) : 0;
+      if (boomE > 0.1) {
+        for (let i = 0; i < sparkCount; i += 1) {
+          const v = sparkVel[i];
+          const u = boomE;
+          sparkPos[i * 3] = v.x * u * 0.7 + Math.sin(t * 2.2 + i) * 0.05;
+          sparkPos[i * 3 + 1] = v.y * u * 0.7 + Math.cos(t * 1.8 + i * 0.7) * 0.05;
+          sparkPos[i * 3 + 2] = v.z * u * 0.55;
+        }
+        sparkGeo.attributes.position.needsUpdate = true;
+      }
+
+      edgeMat.opacity = 0.22 * (1 - Math.min(1, p * 1.35)) * (1 - m) * (1 - boomE * 0.7);
+      floor.material.opacity = 0.45 * (1 - Math.min(1, p * 0.85)) * (1 - m) * (1 - boomE * 0.5);
       cool.position.set(3.5 * Math.sin(0.5 * t), 1.8, 2.5 + Math.cos(0.4 * t));
-      cool.intensity = 0.45 * (1 - m);
+      cool.intensity = 0.45 * (1 - m) + boomE * 0.8;
 
       // Soft merge into cream behind Focused vision — never kill hero visibility
       const onAbout = Math.abs(state.pathX) + Math.abs(state.pathY) > 0.04 || state.targetPathX !== 0;

@@ -56,36 +56,39 @@ export function CinematicCta() {
             viewport={{ once: true, amount: 0.5 }}
             whileInView={{ opacity: 1, y: 0 }}
           >
-            Ready to build something{" "}
-            <button
-              type="button"
-              className="cine-close-swap"
-              aria-label={`Change ending. Currently: ${ENDINGS[ending]}`}
-              onClick={() => {
-                setPaused(true);
-                advance();
-              }}
-              onMouseEnter={() => setPaused(true)}
-              onMouseLeave={() => setPaused(false)}
-              onFocus={() => setPaused(true)}
-              onBlur={() => setPaused(false)}
-            >
-              <span className="cine-close-swap-slot" aria-hidden>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={ENDINGS[ending]}
-                    className="cine-close-swap-word"
-                    initial={reduce ? false : { y: "60%", opacity: 0 }}
-                    animate={{ y: "0%", opacity: 1 }}
-                    exit={reduce ? undefined : { y: "-55%", opacity: 0 }}
-                    transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                  >
-                    {ENDINGS[ending]}
-                  </motion.span>
-                </AnimatePresence>
-              </span>
-              <span className="sr-only">{ENDINGS[ending]}</span>?
-            </button>
+            <span className="cine-close-line">Ready to</span>
+            <span className="cine-close-line">build something</span>
+            <span className="cine-close-line">
+              <button
+                type="button"
+                className="cine-close-swap"
+                aria-label={`Change ending. Currently: ${ENDINGS[ending]}`}
+                onClick={() => {
+                  setPaused(true);
+                  advance();
+                }}
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
+                onFocus={() => setPaused(true)}
+                onBlur={() => setPaused(false)}
+              >
+                <span className="cine-close-swap-slot" aria-hidden>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={ENDINGS[ending]}
+                      className="cine-close-swap-word"
+                      initial={reduce ? false : { y: "60%", opacity: 0 }}
+                      animate={{ y: "0%", opacity: 1 }}
+                      exit={reduce ? undefined : { y: "-55%", opacity: 0 }}
+                      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                    >
+                      {ENDINGS[ending]}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
+                <span className="sr-only">{ENDINGS[ending]}</span>?
+              </button>
+            </span>
           </motion.h2>
           <p className="cine-close-copy">© Lyzr {year}. All rights reserved.</p>
         </div>

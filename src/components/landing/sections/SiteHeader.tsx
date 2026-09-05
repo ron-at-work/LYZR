@@ -68,7 +68,7 @@ export function SiteHeader({
           </button>
         </div>
       )}
-      <div className="pointer-events-none px-3 sm:px-5 pt-3 pb-2">
+      <div className="pointer-events-none pl-3 pr-5 sm:pl-5 sm:pr-8 pt-3 pb-2">
         <div className="max-w-[1240px] mx-auto flex items-center justify-between gap-3">
           {/* Brand */}
           <a
