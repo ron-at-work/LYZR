@@ -284,9 +284,9 @@
 }
 
 .cine-logo span {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -429,9 +429,9 @@
 }
 
 .cine-overlay a {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.4rem, 7.5vw, 5.2rem);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1.05;
   color: var(--cine-fg);
@@ -585,9 +585,9 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(0.95rem, 2.4vw, 1.45rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.03em;
   color: var(--cine-fg);
   line-height: 1;
@@ -681,9 +681,9 @@
 }
 
 .cine-hero h1 {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.1rem, 4.4vw, 3.65rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1.06;
   color: var(--cine-fg);
@@ -724,8 +724,8 @@
 }
 
 .cine-hero h1 em {
-  font-style: normal;
-  font-weight: 700;
+  font-style: italic;
+  font-weight: 400;
   display: block;
   grid-area: 1 / 1;
   white-space: nowrap;
@@ -891,9 +891,9 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.75rem, 4.2vw, 3.35rem);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.038em;
   line-height: 1.16;
   color: #161616;
@@ -1057,9 +1057,9 @@
 }
 
 .cine-marquee-track span {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(4rem, 14vw, 10rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.9;
   text-transform: uppercase;
@@ -1150,9 +1150,9 @@
 
 .cine-companies h2 {
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.85rem, 4.2vw, 3rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1.08;
   text-wrap: balance;
@@ -1375,9 +1375,9 @@
 }
 
 .cine-companies-metric strong {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.75rem, 6vw, 4rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.95;
 }
@@ -1394,9 +1394,9 @@
 
 .cine-companies-quote blockquote {
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.15rem, 2.4vw, 1.55rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 1.35;
   color: #161616;
@@ -1481,9 +1481,9 @@
 }
 
 .cine-facts h2 {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.4rem, 5vw, 3.75rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.04em;
   text-align: center;
   margin: 0;
@@ -1589,9 +1589,9 @@
   color: #111;
   display: grid;
   place-items: center;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.2rem, 4vw, 3rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.05em;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
 }
@@ -1614,9 +1614,9 @@
 }
 
 .cine-fact-body strong {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.5rem, 5vw, 3.5rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.9;
 }
@@ -1646,9 +1646,9 @@
 }
 
 .cine-reasons-head h2 {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.35rem, 5.2vw, 3.85rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.045em;
   line-height: 1.02;
   margin: 0;
@@ -1720,9 +1720,9 @@
 }
 
 .cine-reasons-rail-title {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.05rem, 2vw, 1.25rem);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.2;
 }
@@ -1747,9 +1747,9 @@
   right: clamp(0.75rem, 2vw, 1.5rem);
   top: clamp(0.15rem, 1vw, 0.4rem);
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(5.5rem, 14vw, 9.5rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.06em;
   line-height: 0.85;
   color: rgba(22, 22, 22, 0.05);
@@ -1762,9 +1762,9 @@
   z-index: 1;
   margin: 0;
   max-width: 18ch;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.65rem, 3.4vw, 2.45rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1.08;
 }
@@ -1862,9 +1862,9 @@
 }
 
 .cine-work-intro h2 {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.4rem, 5.5vw, 4rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.045em;
   line-height: 1.02;
   margin: 0;
@@ -1953,9 +1953,9 @@
 }
 
 .cine-work-title {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.2rem, 2.2vw, 1.65rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.1;
 }
@@ -2156,9 +2156,9 @@
 
 .cine-forge-stage {
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.2rem, 5vw, 3.5rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.98;
   text-transform: uppercase;
@@ -2357,9 +2357,9 @@
 }
 
 .cine-svc-grid h3 {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 1.65rem;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.03em;
   margin: 0 0 0.75rem;
 }
@@ -2398,9 +2398,9 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.6rem, 8vw, 5.5rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.05em;
   line-height: 0.95;
   text-transform: uppercase;
@@ -2500,9 +2500,9 @@
 
 .cine-motion-tile p {
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.1rem, 2.2vw, 1.55rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.1;
   max-width: 12ch;
@@ -2720,9 +2720,9 @@
 
 .cine-char-name {
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.045em;
   line-height: 0.95;
   text-transform: uppercase;
@@ -2993,9 +2993,9 @@
 
 .cine-agent-name {
   margin: 0 !important;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.55rem, 3vw, 2.1rem) !important;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1 !important;
   max-width: none !important;
@@ -3138,9 +3138,9 @@
 
 .cine-close h2,
 .cine-close-title {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.2rem, 5.5vw, 4rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.045em;
   line-height: 1.02;
   margin: 0 0 1.25rem;
@@ -3460,9 +3460,9 @@
   --hot-y: 50%;
   --hot-a: 0;
   display: block;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(4.5rem, 22vw, 16rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.06em;
   line-height: 0.82;
   text-transform: uppercase;
@@ -3764,9 +3764,9 @@ html.has-agent-cursor .cine * {
 
 .cine-ceo-quote {
   margin: 0;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.55rem, 3.4vw, 2.65rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 1.18;
   color: #f4f2ed;
@@ -3857,9 +3857,9 @@ html.has-agent-cursor .cine * {
 }
 
 .cine-press-head h2 {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.4rem, 5.5vw, 4rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.045em;
   line-height: 0.95;
   margin: 0;
@@ -3933,9 +3933,9 @@ html.has-agent-cursor .cine * {
 }
 
 .cine-press-award-title {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1.15rem, 2.2vw, 1.55rem);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.15;
 }

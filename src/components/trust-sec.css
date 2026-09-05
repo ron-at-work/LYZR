@@ -65,7 +65,7 @@
 .trust-sec-root .trust-head{margin-bottom:72px}
 
 .trust-sec-root .trust-headline{
-  font-family:var(--font-display),serif;font-weight:300;
+  font-family: var(--font-display),serif;font-weight:300;
   font-size:clamp(2.6rem,5vw,4.8rem);
   line-height:1.06;letter-spacing:-.03em;
   color:#FFFFFF;margin:0 0 24px;
@@ -410,7 +410,7 @@
 
 .trust-sec-root .press-stat{display:flex;flex-direction:column;gap:2px}
 
-.trust-sec-root .press-stat-num{font-family:var(--font-display),var(--font-sans),system-ui,sans-serif;font-weight:600;font-size:1.55rem;line-height:1;color:var(--ink);letter-spacing:-0.01em}
+.trust-sec-root .press-stat-num{font-family: var(--font-display),var(--font-sans),system-ui,sans-serif;font-weight: 400;font-size:1.55rem;line-height:1;color:var(--ink);letter-spacing:-0.01em}
 
 .trust-sec-root .press-stat-cap{font-family:var(--font-sans),sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 
@@ -468,7 +468,7 @@
 
 .trust-sec-root .pf-name::before{content:'';display:block;width:16px;height:2px;border-radius:9999px;background:var(--rose);flex-shrink:0}
 
-.trust-sec-root .pf-highlight{font-family:var(--font-display),var(--font-sans),system-ui,sans-serif;font-weight:500;font-size:1.12rem;line-height:1.2;letter-spacing:-0.015em;color:#ffffff}
+.trust-sec-root .pf-highlight{font-family: var(--font-display),var(--font-sans),system-ui,sans-serif;font-weight: 400;font-size:1.12rem;line-height:1.2;letter-spacing:-0.015em;color:#ffffff}
 
 .trust-sec-root .pf-zoom{
   position:absolute;top:12px;right:12px;z-index:3;
@@ -512,7 +512,7 @@
 
 .trust-sec-root .pf-lb-name{font-size:.64rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#D4847A;font-family:var(--font-sans),system-ui,sans-serif}
 
-.trust-sec-root .pf-lb-title{font-family:var(--font-display),var(--font-sans),system-ui,sans-serif;font-weight:500;font-size:1.25rem;color:#fff;letter-spacing:-0.015em}
+.trust-sec-root .pf-lb-title{font-family: var(--font-display),var(--font-sans),system-ui,sans-serif;font-weight: 400;font-size:1.25rem;color:#fff;letter-spacing:-0.015em}
 
 .trust-sec-root button.pf-lb-close,
 .trust-sec-root .pf-lb-close{

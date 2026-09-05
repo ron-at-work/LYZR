@@ -136,9 +136,9 @@
   position: absolute;
   right: 0.85rem;
   top: 0.35rem;
-  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-display), var(--font-sans), Georgia, serif;
   font-size: clamp(4.5rem, 8vw, 7rem);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1;
   letter-spacing: -0.04em;
   color: rgb(17 17 17 / 0.05);

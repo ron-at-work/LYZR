@@ -108,7 +108,13 @@ export function InteractiveLines({ blast = false }: Props) {
         const mid = pts[Math.floor(pts.length / 2)];
         const d = Math.hypot(mid.x - mx, mid.y - my);
         const hot = Math.max(0, 1 - d / 280);
-        const alpha = (0.05 + hot * 0.22) * (blastRef.current ? 1.35 : 1);
+        // Soft punch-out around the 3D mark so solid ink reads clearly
+        const markCx = w * 0.5;
+        const markCy = h * 0.46;
+        const markDist = Math.hypot(mid.x - markCx, mid.y - markCy);
+        const markR = Math.min(w, h) * 0.32;
+        const markFade = Math.min(1, Math.max(0.12, (markDist - markR * 0.35) / (markR * 0.85)));
+        const alpha = (0.045 + hot * 0.2) * markFade * (blastRef.current ? 1.35 : 1);
         ctx.strokeStyle = blastRef.current
           ? `rgba(220, 90, 40, ${alpha})`
           : `rgba(40, 36, 30, ${alpha})`;

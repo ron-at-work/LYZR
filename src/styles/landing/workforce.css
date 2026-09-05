@@ -313,7 +313,7 @@
 
 .workforce-featured-metric {
   font-size: 1.75rem;
-  font-family: var(--font-display, ui-sans-serif, system-ui, sans-serif);
+  font-family: var(--font-display), Georgia, serif;
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1;

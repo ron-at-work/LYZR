@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Outfit, Syne } from "next/font/google";
+import { Instrument_Serif, JetBrains_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import "../styles/landing/index.css";
 
@@ -10,9 +10,10 @@ const outfit = Outfit({
   display: "swap",
 });
 
-const syne = Syne({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: "400",
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
@@ -36,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${syne.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${instrumentSerif.variable} ${jetbrains.variable}`}>
       <body className="bg-[#f3f1ec] font-sans text-[#161616] antialiased">{children}</body>
     </html>
   );

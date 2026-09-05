@@ -49,10 +49,9 @@ type TermLabel = {
 };
 
 /**
- * 3D Lyzr mark only (inner glyph — no plate/squircle).
- * Warm-white theme: dark glass that expands on scroll like Trionn —
- * silhouette stays, gaps open (radial fail-open).
- * Hold → haptic buzz → mark explodes into agent particles + AI terms.
+ * 3D Lyzr mark — grainy mesh hologram (not a solid ink blob).
+ * Ghost glass volume + wire cage + silhouette + soft grain points.
+ * Scroll radial fail-open; hold → agents + AI terms.
  */
 export function HeroMark({ className, blast = false }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -110,59 +109,66 @@ export function HeroMark({ className, blast = false }: Props) {
     camera.position.set(0, 0.12, 5.2);
     camera.lookAt(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-    const key = new THREE.DirectionalLight(0xffffff, 2.6);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.05));
+    const key = new THREE.DirectionalLight(0xffffff, 2.9);
     key.position.set(3, 4.5, 5);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0xf0ebe3, 1.1);
+    const fill = new THREE.DirectionalLight(0xf5f0e8, 1.35);
     fill.position.set(-3.5, 1.2, 2.5);
     scene.add(fill);
-    const rim = new THREE.DirectionalLight(0xd8d2c8, 0.55);
+    const rim = new THREE.DirectionalLight(0xffe8d4, 0.7);
     rim.position.set(-2, 2.5, -3);
     scene.add(rim);
-    const warm = new THREE.PointLight(0xff7a3a, 1.15, 16, 2);
+    const warm = new THREE.PointLight(0xff7a3a, 1.25, 16, 2);
     warm.position.set(0.3, 0.1, 2.2);
     scene.add(warm);
-    const cool = new THREE.PointLight(0xa8c4ff, 0.45, 14, 2);
+    const cool = new THREE.PointLight(0xa8c4ff, 0.55, 14, 2);
     scene.add(cool);
 
-    const cubeRT = new THREE.WebGLCubeRenderTarget(128, {
-      generateMipmaps: true,
-      minFilter: THREE.LinearMipmapLinearFilter,
-    });
-    const cubeCamera = new THREE.CubeCamera(0.1, 80, cubeRT);
-    scene.add(cubeCamera);
-
-    // Soft ground contact for white theme depth
-    const floorGeo = new THREE.CircleGeometry(2.8, 64);
-    const floorMat = new THREE.MeshStandardMaterial({
-      color: 0xe8e4dc,
-      metalness: 0.05,
-      roughness: 0.85,
+    // Soft elliptical contact — barely there, hologram floats
+    const floorGeo = new THREE.CircleGeometry(2.0, 64);
+    const floorMat = new THREE.MeshBasicMaterial({
+      color: 0x2a2620,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.055,
+      depthWrite: false,
     });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -1.35;
+    floor.position.y = -1.28;
+    floor.scale.set(1.1, 1, 0.7);
     scene.add(floor);
 
-    const inkMat = new THREE.MeshPhysicalMaterial({
-      color: 0x1a1a1a,
-      emissive: new THREE.Color(0x2a1408),
-      emissiveIntensity: 0.06,
-      metalness: 0.55,
-      roughness: 0.22,
-      clearcoat: 0.85,
-      clearcoatRoughness: 0.12,
-      envMap: cubeRT.texture,
-      envMapIntensity: 1.35,
+    // —— Hologram stack: ghost → mesh cage → contour → grain ——
+    const ghostMat = new THREE.MeshBasicMaterial({
+      color: 0x1c1915,
+      transparent: true,
+      opacity: 0.13,
+      depthWrite: false,
       side: THREE.DoubleSide,
     });
-    const edgeMat = new THREE.LineBasicMaterial({
-      color: 0x3a3a3a,
+    const wireMat = new THREE.LineBasicMaterial({
+      color: 0x2e2a24,
       transparent: true,
-      opacity: 0.28,
+      opacity: 0.38,
+    });
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: 0x12110f,
+      transparent: true,
+      opacity: 0.78,
+    });
+    const holoEdgeMat = new THREE.LineBasicMaterial({
+      color: 0xc45a28,
+      transparent: true,
+      opacity: 0.2,
+    });
+    const grainMat = new THREE.PointsMaterial({
+      color: 0x3d372e,
+      size: 1.65,
+      sizeAttenuation: false,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
     });
 
     const group = new THREE.Group();
@@ -174,7 +180,30 @@ export function HeroMark({ className, blast = false }: Props) {
     const agents: AgentBit[] = [];
     const terms: TermLabel[] = [];
     const geos: THREE.BufferGeometry[] = [floorGeo];
-    const mats: THREE.Material[] = [inkMat, edgeMat, floorMat];
+    const mats: THREE.Material[] = [ghostMat, wireMat, edgeMat, holoEdgeMat, grainMat, floorMat];
+
+    /** Jittered point cloud from mesh verts — grainy hologram dust. */
+    const makeGrainGeo = (src: THREE.BufferGeometry, stride = 3) => {
+      const pos = src.getAttribute("position");
+      const out: number[] = [];
+      for (let i = 0; i < pos.count; i += stride) {
+        const j = (Math.random() - 0.5) * 2.4;
+        out.push(pos.getX(i) + j, pos.getY(i) + j * 0.7, pos.getZ(i) + (Math.random() - 0.5) * 2.2);
+      }
+      // Extra scattered grains along the surface
+      const extra = Math.floor(pos.count * 0.22);
+      for (let i = 0; i < extra; i += 1) {
+        const idx = Math.floor(Math.random() * pos.count);
+        out.push(
+          pos.getX(idx) + (Math.random() - 0.5) * 4,
+          pos.getY(idx) + (Math.random() - 0.5) * 4,
+          pos.getZ(idx) + (Math.random() - 0.5) * 3,
+        );
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(out, 3));
+      return g;
+    };
 
     const AI_TERMS = [
       "OpenAI",
@@ -284,31 +313,30 @@ export function HeroMark({ className, blast = false }: Props) {
     };
 
     // Soft agent-node materials (ink + warm/cool accents)
-    const agentInk = inkMat.clone();
-    agentInk.transparent = true;
-    agentInk.opacity = 0.92;
-    agentInk.emissiveIntensity = 0.2;
-    const agentWarm = new THREE.MeshPhysicalMaterial({
+    const agentInk = new THREE.MeshStandardMaterial({
+      color: 0x1a1814,
+      emissive: new THREE.Color(0x2a160c),
+      emissiveIntensity: 0.25,
+      metalness: 0.3,
+      roughness: 0.4,
+      transparent: true,
+      opacity: 0.92,
+    });
+    const agentWarm = new THREE.MeshStandardMaterial({
       color: 0x1a1a1a,
       emissive: new THREE.Color(0xff6a2a),
       emissiveIntensity: 0.55,
-      metalness: 0.4,
-      roughness: 0.3,
-      clearcoat: 0.7,
-      envMap: cubeRT.texture,
-      envMapIntensity: 1.1,
+      metalness: 0.35,
+      roughness: 0.35,
       transparent: true,
       opacity: 0.9,
     });
-    const agentCool = new THREE.MeshPhysicalMaterial({
+    const agentCool = new THREE.MeshStandardMaterial({
       color: 0x141820,
       emissive: new THREE.Color(0x6a9fff),
       emissiveIntensity: 0.45,
-      metalness: 0.5,
-      roughness: 0.28,
-      clearcoat: 0.8,
-      envMap: cubeRT.texture,
-      envMapIntensity: 1.2,
+      metalness: 0.4,
+      roughness: 0.32,
       transparent: true,
       opacity: 0.88,
     });
@@ -410,23 +438,49 @@ export function HeroMark({ className, blast = false }: Props) {
       });
     };
 
-    /** Each SVG path = one solid plate. Radial fail-open keeps the silhouette (Trionn). */
+    /** Ghost glass + wire cage + contour + grain — hologram stack per plate. */
     const addExtrudedPlate = (geo: THREE.ExtrudeGeometry, shapeIdx: number) => {
       geos.push(geo);
       geo.computeBoundingBox();
       geo.computeVertexNormals();
-      const mat = inkMat.clone();
-      mats.push(mat);
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.frustumCulled = false;
-      group.add(mesh);
-      pushShard(mesh, shapeIdx);
 
-      const edges = new THREE.EdgesGeometry(geo, 24);
+      const ghost = new THREE.Mesh(geo, ghostMat);
+      ghost.frustumCulled = false;
+      ghost.renderOrder = 0;
+      group.add(ghost);
+      pushShard(ghost, shapeIdx);
+
+      const wireGeo = new THREE.WireframeGeometry(geo);
+      geos.push(wireGeo);
+      const wire = new THREE.LineSegments(wireGeo, wireMat);
+      wire.frustumCulled = false;
+      wire.renderOrder = 1;
+      group.add(wire);
+      pushShard(wire, shapeIdx, true);
+
+      const edges = new THREE.EdgesGeometry(geo, 28);
       geos.push(edges);
       const edge = new THREE.LineSegments(edges, edgeMat);
+      edge.frustumCulled = false;
+      edge.renderOrder = 2;
       group.add(edge);
       pushShard(edge, shapeIdx, true);
+
+      const holoEdges = new THREE.EdgesGeometry(geo, 16);
+      geos.push(holoEdges);
+      const holo = new THREE.LineSegments(holoEdges, holoEdgeMat);
+      holo.frustumCulled = false;
+      holo.renderOrder = 3;
+      group.add(holo);
+      pushShard(holo, shapeIdx, true);
+
+      const grainGeo = makeGrainGeo(geo, 2);
+      geos.push(grainGeo);
+      const grain = new THREE.Points(grainGeo, grainMat);
+      grain.frustumCulled = false;
+      grain.renderOrder = 4;
+      group.add(grain);
+      pushShard(grain, shapeIdx, true);
     };
 
     const state = {
@@ -487,12 +541,12 @@ export function HeroMark({ className, blast = false }: Props) {
       (data) => {
         if (disposed) return;
         const extrude: THREE.ExtrudeGeometryOptions = {
-          depth: 42,
+          depth: 36,
           bevelEnabled: true,
-          bevelThickness: 5,
-          bevelSize: 4,
-          bevelSegments: 3,
-          curveSegments: 10,
+          bevelThickness: 3,
+          bevelSize: 2.5,
+          bevelSegments: 2,
+          curveSegments: 12,
         };
 
         let shapeIdx = 0;
@@ -511,7 +565,11 @@ export function HeroMark({ className, blast = false }: Props) {
         box.getCenter(center);
 
         group.traverse((obj) => {
-          if (obj instanceof THREE.Mesh || obj instanceof THREE.LineSegments) {
+          if (
+            obj instanceof THREE.Mesh ||
+            obj instanceof THREE.LineSegments ||
+            obj instanceof THREE.Points
+          ) {
             obj.geometry.translate(-center.x, -center.y, -center.z);
             obj.geometry.computeBoundingBox();
             obj.geometry.computeBoundingSphere();
@@ -521,7 +579,9 @@ export function HeroMark({ className, blast = false }: Props) {
 
         shards.forEach((s) => {
           const geo =
-            s.mesh instanceof THREE.Mesh || s.mesh instanceof THREE.LineSegments
+            s.mesh instanceof THREE.Mesh ||
+            s.mesh instanceof THREE.LineSegments ||
+            s.mesh instanceof THREE.Points
               ? s.mesh.geometry
               : null;
           if (!geo) return;
@@ -565,7 +625,6 @@ export function HeroMark({ className, blast = false }: Props) {
         mount.dataset.scale = String(s);
 
         // Force one lit frame so the hero mark is definitely painted
-        cubeCamera.update(renderer, scene);
         renderer.render(scene, camera);
         ScrollTrigger.refresh();
       },
@@ -799,25 +858,20 @@ export function HeroMark({ className, blast = false }: Props) {
         }
 
         if (!e.isEdge && e.mesh instanceof THREE.Mesh) {
-          const mat = e.mesh.material as THREE.MeshPhysicalMaterial;
-          mat.emissiveIntensity =
-            0.06 +
-            p * 0.45 * (1 - m) +
-            m * 0.02 +
-            state.vibrateAmt * 0.55 * (1 - boomE) +
-            boomE * 0.9;
-          mat.opacity = Math.max(0.06, (1 - boomE * 0.55) * Math.max(0.08, 1 - m * 0.78));
-          mat.transparent = true;
-          mat.depthWrite = m < 0.55 && boomE < 0.75;
-          mat.roughness = 0.22 + m * 0.55;
-          mat.envMapIntensity = 1.35 * (1 - m * 0.85) + boomE * 0.4;
           warm.intensity =
-            1.0 +
-            p * 2.8 * (1 - m) +
-            state.vibrateAmt * 1.6 * (1 - boomE) +
-            boomE * 3.2;
+            0.85 +
+            p * 1.8 * (1 - m) +
+            state.vibrateAmt * 1.4 * (1 - boomE) +
+            boomE * 2.6;
         }
       });
+
+      // Ghost mist — shared material, breathe once per frame
+      ghostMat.opacity =
+        (0.12 + 0.035 * Math.sin(t * 1.15)) *
+        (1 - p * 0.4) *
+        (1 - boomE * 0.7) *
+        Math.max(0.12, 1 - m * 0.85);
 
       // —— Agent particles (nodes + sparks) ——
       agents.forEach((a, i) => {
@@ -844,7 +898,7 @@ export function HeroMark({ className, blast = false }: Props) {
         a.mesh.rotation.z += a.spin.z * 0.016;
         const pop = a.size * (0.55 + reveal * 0.7 + Math.sin(t * 3 + a.phase) * 0.08);
         a.mesh.scale.setScalar(pop);
-        const mat = a.mesh.material as THREE.MeshPhysicalMaterial;
+        const mat = a.mesh.material as THREE.MeshStandardMaterial;
         mat.opacity = 0.15 + reveal * 0.75;
         mat.emissiveIntensity = 0.25 + reveal * 0.85 + state.vibrateAmt * 0.2;
       });
@@ -891,10 +945,17 @@ export function HeroMark({ className, blast = false }: Props) {
         sparkGeo.attributes.position.needsUpdate = true;
       }
 
-      edgeMat.opacity = 0.22 * (1 - Math.min(1, p * 1.35)) * (1 - m) * (1 - boomE * 0.7);
-      floor.material.opacity = 0.45 * (1 - Math.min(1, p * 0.85)) * (1 - m) * (1 - boomE * 0.5);
+      // Mesh cage + grain pulse — hologram always, never a solid brick
+      const live = (1 - m) * (1 - boomE * 0.65);
+      wireMat.opacity = (0.32 + 0.1 * Math.sin(t * 1.4) + p * 0.18) * live;
+      edgeMat.opacity = (0.72 + p * 0.12 + state.vibrateAmt * 0.15) * live;
+      holoEdgeMat.opacity =
+        (0.18 + p * 0.45 + state.vibrateAmt * 0.4) * live;
+      grainMat.opacity = (0.45 + 0.12 * Math.sin(t * 2.1) + p * 0.2) * live;
+      grainMat.size = 1.45 + 0.35 * Math.sin(t * 1.7) + p * 0.4;
+      floorMat.opacity = 0.055 * (1 - Math.min(1, p * 0.85)) * (1 - m) * (1 - boomE * 0.5);
       cool.position.set(3.5 * Math.sin(0.5 * t), 1.8, 2.5 + Math.cos(0.4 * t));
-      cool.intensity = 0.45 * (1 - m) + boomE * 0.8;
+      cool.intensity = 0.45 * (1 - m) + p * 0.4 + boomE * 0.7;
 
       // Soft merge into cream behind Focused vision — never kill hero visibility
       const onAbout = Math.abs(state.pathX) + Math.abs(state.pathY) > 0.04 || state.targetPathX !== 0;
@@ -958,7 +1019,6 @@ export function HeroMark({ className, blast = false }: Props) {
       mount.style.zIndex = "";
       geos.forEach((g) => g.dispose());
       mats.forEach((m) => m.dispose());
-      cubeRT.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement);
     };
