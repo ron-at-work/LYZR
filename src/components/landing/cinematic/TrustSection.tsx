@@ -46,8 +46,41 @@ export function TrustSection() {
     if (!ref.current) return;
     const cards = ref.current.querySelectorAll<HTMLElement>(".cine-fact-card");
     const title = ref.current.querySelector<HTMLElement>(".cine-facts-head");
+    const row = ref.current.querySelector<HTMLElement>(".cine-facts-row");
 
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(max-width: 719px)", () => {
+      if (reduce) {
+        gsap.set([title, cards], { clearProps: "all", opacity: 1, y: 0, yPercent: 0, rotate: 0 });
+        return;
+      }
+
+      gsap.set(cards, { yPercent: 28, opacity: 0.15 });
+      gsap.set(title, { opacity: 1, y: 0 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: row ?? ref.current,
+          start: "top top+=56",
+          end: "+=140%",
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.45,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      tl.to(cards, {
+        yPercent: 0,
+        opacity: 1,
+        ease: "none",
+        stagger: { each: 0.12, from: "start" },
+      });
+    });
+
+    mm.add("(min-width: 720px)", () => {
       if (reduce) {
         gsap.set([title, cards], { clearProps: "all", opacity: 1, y: 0 });
         return;
@@ -56,7 +89,6 @@ export function TrustSection() {
       gsap.set(cards, { yPercent: -120, opacity: 0, rotate: -4 });
       gsap.set(title, { opacity: 0, y: 28 });
 
-      // Drop from above once (Trionn-style), not endlessly scrubbed
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: ref.current,
@@ -82,10 +114,10 @@ export function TrustSection() {
         },
         0.08,
       );
-    }, ref);
+    });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => ctx.revert();
+    return () => mm.revert();
   }, [reduce]);
 
   useEffect(() => {

@@ -69,7 +69,8 @@ export function ManifestoSection() {
       const pinDistance = () => {
         const vh = window.innerHeight;
         const w = window.innerWidth;
-        if (w < 720) return Math.round(vh * Math.max(1.35, chars.length * 0.028));
+        // Phone: pin long enough to read letters, short enough to avoid dead blank
+        if (w < 720) return Math.round(vh * Math.max(1.85, chars.length * 0.032));
         if (w < 960) return Math.round(vh * Math.max(2, chars.length * 0.036));
         return Math.round(vh * Math.max(2.8, chars.length * 0.045));
       };
@@ -79,7 +80,7 @@ export function ManifestoSection() {
           trigger: section,
           start: "top top",
           end: pinDistance,
-          scrub: 0.35,
+          scrub: 0.4,
           pin: true,
           pinSpacing: true,
           anticipatePin: 1,
@@ -143,8 +144,8 @@ export function ManifestoSection() {
         tl.to(caret, { opacity: 0, duration: 0.12, ease: "none" }, ">-0.02");
       }
 
-      // Phase 2 — hold fully readable before unpin
-      tl.to({}, { duration: 0.85 });
+      // Phase 2 — brief hold fully readable before unpin
+      tl.to({}, { duration: window.innerWidth < 720 ? 0.35 : 0.85 });
     }, sectionRef);
 
     requestAnimationFrame(() => ScrollTrigger.refresh());

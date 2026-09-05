@@ -96,8 +96,14 @@
     letter-spacing: -0.01em;
   }
 
-  body.is-nav-locked {
+  body.is-nav-locked,
+  html.is-nav-locked {
     overflow: hidden;
+    touch-action: none;
+  }
+
+  html.is-nav-locked .cine-grain {
+    pointer-events: none;
   }
 
   h1,

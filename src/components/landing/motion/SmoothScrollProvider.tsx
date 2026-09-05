@@ -18,11 +18,15 @@ gsap.registerPlugin(ScrollTrigger);
 type SmoothScrollApi = {
   lenis: Lenis | null;
   scrollTo: (target: string | number | HTMLElement, options?: { offset?: number; immediate?: boolean }) => void;
+  stop: () => void;
+  start: () => void;
 };
 
 const SmoothScrollContext = createContext<SmoothScrollApi>({
   lenis: null,
   scrollTo: () => {},
+  stop: () => {},
+  start: () => {},
 });
 
 export function useSmoothScroll() {
@@ -39,10 +43,13 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     if (reduce) return;
 
     const instance = new Lenis({
-      duration: 1.2,
+      duration: 1.05,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 1.35,
+      // Touch + ScrollTrigger scrub stay in sync on iOS/Android
+      syncTouch: true,
+      syncTouchLerp: 0.12,
+      touchMultiplier: 1.15,
     });
 
     lenisRef.current = instance;
@@ -51,6 +58,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     (window as unknown as { __lenis?: Lenis }).__lenis = instance;
 
     instance.on("scroll", ScrollTrigger.update);
+    ScrollTrigger.config({ ignoreMobileResize: true });
+    ScrollTrigger.normalizeScroll(false);
 
     const ticker = (time: number) => {
       instance.raf(time * 1000);
@@ -73,6 +82,12 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const api = useMemo<SmoothScrollApi>(
     () => ({
       lenis,
+      stop: () => {
+        lenisRef.current?.stop();
+      },
+      start: () => {
+        lenisRef.current?.start();
+      },
       scrollTo: (target, options) => {
         const instance = lenisRef.current;
         if (!instance) {

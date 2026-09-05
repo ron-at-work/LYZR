@@ -74,9 +74,13 @@ export function CapabilitiesStack() {
     mm.add("(max-width: 719px)", () => {
       ScrollTrigger.create({
         trigger: pinRef.current,
-        start: "top 80%",
-        end: "bottom 20%",
-        scrub: 0.5,
+        start: "top top",
+        end: "+=220%",
+        pin: true,
+        pinSpacing: true,
+        scrub: 0.55,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
         onUpdate,
       });
     });
@@ -87,8 +91,10 @@ export function CapabilitiesStack() {
         start: "top top",
         end: "+=160%",
         pin: true,
+        pinSpacing: true,
         scrub: 0.65,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
         onUpdate,
       });
     });
@@ -99,8 +105,10 @@ export function CapabilitiesStack() {
         start: "top top",
         end: "+=360%",
         pin: true,
+        pinSpacing: true,
         scrub: 0.75,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
         onUpdate,
       });
     });

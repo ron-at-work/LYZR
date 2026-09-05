@@ -1,6 +1,8 @@
 'use client';
 
 import type React from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   NAV_EXT,
   NAV_SOLUTIONS,
@@ -36,7 +38,7 @@ export type SiteHeaderProps = {
 export function SiteHeader({
   bannerOpen,
   onDismissBanner,
-  navSolid,
+  navSolid: _navSolid,
   openNav,
   openNavMenu,
   scheduleCloseNav,
@@ -47,8 +49,120 @@ export function SiteHeader({
   closeMobileNav,
   headerRef,
 }: SiteHeaderProps) {
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  const mobileMenu =
+    mobileOpen && portalReady ? (
+      <div
+        className="mobile-nav pointer-events-auto"
+        data-lenis-prevent
+        id="mobile-nav"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Site navigation"
+      >
+        <div className="mobile-nav-bar">
+          <a aria-label="Lyzr home" className="inline-flex items-center h-11 px-1" href="#" onClick={closeMobileNav}>
+            <img alt="" className="h-7 w-auto" height={28} src="/lyzr-logo.png" width={73} />
+          </a>
+          <button aria-label="Close menu" className="mobile-nav-btn" onClick={closeMobileNav} type="button">
+            <span className="material-symbols-outlined text-[22px]" aria-hidden="true">
+              close
+            </span>
+          </button>
+        </div>
+        <div className="mobile-nav-scroll" data-lenis-prevent>
+          <div className="mobile-nav-group">
+            <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("solutions")} type="button">
+              Solutions
+              <NavChevron open={mobileSection === "solutions"} />
+            </button>
+            {mobileSection === "solutions" ? (
+              <div className="mobile-nav-group-panel">
+                {[...NAV_SOLUTIONS.industry, ...NAV_SOLUTIONS.function, ...NAV_SOLUTIONS.team].map((item) => (
+                  <a className="mobile-nav-sublink" href={item.href} key={`sol-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
+                    {item.name}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mobile-nav-group">
+            <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("platform")} type="button">
+              Platform
+              <NavChevron open={mobileSection === "platform"} />
+            </button>
+            {mobileSection === "platform" ? (
+              <div className="mobile-nav-group-panel">
+                {[...NAV_PLATFORM.products, ...NAV_PLATFORM.modules]
+                  .filter((item) => Boolean(item.href))
+                  .map((item) => (
+                    <a className="mobile-nav-sublink" href={item.href!} key={`plat-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
+                      {item.name}
+                    </a>
+                  ))}
+              </div>
+            ) : null}
+          </div>
+
+          <a className="mobile-nav-link" href="https://www.lyzr.ai/customers/" onClick={closeMobileNav} {...NAV_EXT}>
+            Customers
+          </a>
+          <a className="mobile-nav-link" href="https://www.lyzr.ai/pricing/" onClick={closeMobileNav} {...NAV_EXT}>
+            Pricing
+          </a>
+
+          <div className="mobile-nav-group">
+            <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("partners")} type="button">
+              Partners
+              <NavChevron open={mobileSection === "partners"} />
+            </button>
+            {mobileSection === "partners" ? (
+              <div className="mobile-nav-group-panel">
+                {NAV_PARTNERS.ecosystem.map((item) => (
+                  <a className="mobile-nav-sublink" href={item.href} key={`par-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
+                    {item.name}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mobile-nav-group">
+            <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("resources")} type="button">
+              Resources
+              <NavChevron open={mobileSection === "resources"} />
+            </button>
+            {mobileSection === "resources" ? (
+              <div className="mobile-nav-group-panel">
+                {[...NAV_RESOURCES.learn, ...NAV_RESOURCES.playbooks, ...NAV_RESOURCES.analyze].map((item) => (
+                  <a className="mobile-nav-sublink" href={item.href} key={`res-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
+                    {item.name}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mobile-nav-cta-row">
+            <a className="mobile-nav-cta mobile-nav-cta--primary" href="#get-started" onClick={closeMobileNav}>
+              Get started
+            </a>
+            <a className="mobile-nav-cta mobile-nav-cta--ghost" href="https://studio.lyzr.ai/" onClick={closeMobileNav} {...NAV_EXT}>
+              Open Agent Studio
+            </a>
+          </div>
+        </div>
+      </div>
+    ) : null;
+
   return (
-    <header className="fixed top-0 w-full z-50 pointer-events-none" ref={headerRef}>
+    <header className="fixed top-0 w-full z-[200] pointer-events-none" ref={headerRef}>
       {bannerOpen && (
         <div className="pointer-events-auto relative bg-ink-banner site-announce text-center text-on-primary/90 tracking-tight">
           <span className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 pr-1">
@@ -406,101 +520,7 @@ export function SiteHeader({
         </div>
       </div>
 
-      {mobileOpen ? (
-        <div className="mobile-nav pointer-events-auto" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Site navigation">
-          <div className="mobile-nav-bar">
-            <a aria-label="Lyzr home" className="inline-flex items-center h-11 px-1" href="#" onClick={closeMobileNav}>
-              <img alt="" className="h-7 w-auto" height={28} src="/lyzr-logo.png" width={73} />
-            </a>
-            <button aria-label="Close menu" className="mobile-nav-btn" onClick={closeMobileNav} type="button">
-              <span className="material-symbols-outlined text-[22px]" aria-hidden="true">close</span>
-            </button>
-          </div>
-          <div className="mobile-nav-scroll">
-            <div className="mobile-nav-group">
-              <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("solutions")} type="button">
-                Solutions
-                <NavChevron open={mobileSection === "solutions"} />
-              </button>
-              {mobileSection === "solutions" ? (
-                <div className="mobile-nav-group-panel">
-                  {[...NAV_SOLUTIONS.industry, ...NAV_SOLUTIONS.function, ...NAV_SOLUTIONS.team].map((item) => (
-                    <a className="mobile-nav-sublink" href={item.href} key={`sol-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
-                      {item.name}
-                    </a>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="mobile-nav-group">
-              <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("platform")} type="button">
-                Platform
-                <NavChevron open={mobileSection === "platform"} />
-              </button>
-              {mobileSection === "platform" ? (
-                <div className="mobile-nav-group-panel">
-                  {[...NAV_PLATFORM.products, ...NAV_PLATFORM.modules]
-                    .filter((item) => Boolean(item.href))
-                    .map((item) => (
-                      <a className="mobile-nav-sublink" href={item.href!} key={`plat-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
-                        {item.name}
-                      </a>
-                    ))}
-                </div>
-              ) : null}
-            </div>
-
-            <a className="mobile-nav-link" href="https://www.lyzr.ai/customers/" onClick={closeMobileNav} {...NAV_EXT}>
-              Customers
-            </a>
-            <a className="mobile-nav-link" href="https://www.lyzr.ai/pricing/" onClick={closeMobileNav} {...NAV_EXT}>
-              Pricing
-            </a>
-
-            <div className="mobile-nav-group">
-              <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("partners")} type="button">
-                Partners
-                <NavChevron open={mobileSection === "partners"} />
-              </button>
-              {mobileSection === "partners" ? (
-                <div className="mobile-nav-group-panel">
-                  {NAV_PARTNERS.ecosystem.map((item) => (
-                    <a className="mobile-nav-sublink" href={item.href} key={`par-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
-                      {item.name}
-                    </a>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="mobile-nav-group">
-              <button className="mobile-nav-group-btn" onClick={() => toggleMobileSection("resources")} type="button">
-                Resources
-                <NavChevron open={mobileSection === "resources"} />
-              </button>
-              {mobileSection === "resources" ? (
-                <div className="mobile-nav-group-panel">
-                  {[...NAV_RESOURCES.learn, ...NAV_RESOURCES.playbooks, ...NAV_RESOURCES.analyze].map((item) => (
-                    <a className="mobile-nav-sublink" href={item.href} key={`res-${item.name}`} onClick={closeMobileNav} {...NAV_EXT}>
-                      {item.name}
-                    </a>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="mobile-nav-cta-row">
-              <a className="mobile-nav-cta mobile-nav-cta--primary" href="#get-started" onClick={closeMobileNav}>
-                Get started
-              </a>
-              <a className="mobile-nav-cta mobile-nav-cta--ghost" href="https://studio.lyzr.ai/" onClick={closeMobileNav} {...NAV_EXT}>
-                Open Agent Studio
-              </a>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {portalReady && mobileMenu ? createPortal(mobileMenu, document.body) : null}
     </header>
   );
 }

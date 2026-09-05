@@ -440,8 +440,13 @@
 }
 
 /* Keep megamenu above page grain; isolate from blend modes */
+.landing-nav {
+  position: relative;
+  z-index: 200;
+}
+
 .landing-nav > header {
-  z-index: 90;
+  z-index: 200;
   isolation: isolate;
   background-color: transparent;
   transition:

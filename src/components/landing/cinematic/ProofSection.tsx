@@ -47,8 +47,43 @@ export function ProofSection() {
     const section = ref.current;
     const head = section.querySelector<HTMLElement>(".cine-work-intro");
     const items = section.querySelectorAll<HTMLElement>(".cine-work-item");
+    const board = section.querySelector<HTMLElement>(".cine-work-board");
 
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(max-width: 719px)", () => {
+      gsap.set(head, { opacity: 1, y: 0 });
+      gsap.set(items, { opacity: 0.25, y: 24 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: board ?? section,
+          start: "top top+=56",
+          end: "+=160%",
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.45,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate(self) {
+            const idx = Math.min(
+              PROJECTS.length - 1,
+              Math.floor(self.progress * PROJECTS.length * 0.999),
+            );
+            setActive((prev) => (prev === idx ? prev : idx));
+          },
+        },
+      });
+
+      tl.to(items, {
+        opacity: 1,
+        y: 0,
+        ease: "none",
+        stagger: { each: 0.15, from: "start" },
+      });
+    });
+
+    mm.add("(min-width: 720px)", () => {
       gsap.set(head, { opacity: 0, y: 28 });
       gsap.set(items, { opacity: 0, y: 36 });
 
@@ -71,10 +106,10 @@ export function ProofSection() {
         },
         "-=0.25",
       );
-    }, ref);
+    });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => ctx.revert();
+    return () => mm.revert();
   }, [reduce]);
 
   useEffect(() => {

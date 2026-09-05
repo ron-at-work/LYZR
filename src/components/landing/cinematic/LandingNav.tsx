@@ -8,7 +8,7 @@ import { useSmoothScroll } from "../motion/SmoothScrollProvider";
 const CLOSE_DELAY_MS = 160;
 
 export function LandingNav() {
-  const { lenis } = useSmoothScroll();
+  const { lenis, stop, start } = useSmoothScroll();
   const headerRef = useRef<HTMLElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -56,8 +56,26 @@ export function LandingNav() {
 
   useEffect(() => {
     document.body.classList.toggle("is-nav-locked", mobileOpen);
-    return () => document.body.classList.remove("is-nav-locked");
-  }, [mobileOpen]);
+    document.documentElement.classList.toggle("is-nav-locked", mobileOpen);
+
+    if (mobileOpen) stop();
+    else start();
+
+    return () => {
+      document.body.classList.remove("is-nav-locked");
+      document.documentElement.classList.remove("is-nav-locked");
+      start();
+    };
+  }, [mobileOpen, stop, start]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMobileNav();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen, closeMobileNav]);
 
   useEffect(() => {
     return () => {

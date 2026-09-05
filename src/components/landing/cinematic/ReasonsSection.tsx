@@ -87,7 +87,35 @@ export function ReasonsSection() {
     const rail = section.querySelectorAll<HTMLElement>(".cine-reasons-rail-item");
     const panel = section.querySelector<HTMLElement>(".cine-reasons-panel");
 
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(max-width: 719px)", () => {
+      gsap.set([head, panel], { opacity: 1, y: 0 });
+      gsap.set(rail, { opacity: 1, x: 0 });
+
+      const pinTarget =
+        section.querySelector<HTMLElement>(".cine-reasons-stage") ?? section;
+
+      ScrollTrigger.create({
+        trigger: pinTarget,
+        start: "top top",
+        end: () => `+=${Math.round(window.innerHeight * Math.max(2.4, REASONS.length * 0.55))}`,
+        pin: true,
+        pinSpacing: true,
+        scrub: 0.45,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate(self) {
+          const idx = Math.min(
+            REASONS.length - 1,
+            Math.floor(self.progress * REASONS.length * 0.999),
+          );
+          setActive((prev) => (prev === idx ? prev : idx));
+        },
+      });
+    });
+
+    mm.add("(min-width: 720px)", () => {
       gsap.set([head, panel], { opacity: 0, y: 28 });
       gsap.set(rail, { opacity: 0, x: -18 });
 
@@ -112,10 +140,10 @@ export function ReasonsSection() {
           "-=0.28",
         )
         .to(panel, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, "-=0.35");
-    }, ref);
+    });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => ctx.revert();
+    return () => mm.revert();
   }, [reduce]);
 
   useEffect(() => {

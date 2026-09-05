@@ -126,7 +126,35 @@ export function CompaniesSection() {
     const tiles = root.querySelectorAll<HTMLElement>(".cine-companies-tile");
     const stage = root.querySelector<HTMLElement>(".cine-companies-stage");
 
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(max-width: 719px)", () => {
+      if (reduce) {
+        gsap.set([head, tiles, stage], { clearProps: "all", opacity: 1, y: 0 });
+        return;
+      }
+
+      gsap.set([head, tiles, stage], { opacity: 1, y: 0 });
+
+      if (!stage) return;
+
+      ScrollTrigger.create({
+        trigger: stage,
+        start: "top top+=56",
+        end: () => `+=${Math.round(window.innerHeight * Math.max(1.6, total * 0.45))}`,
+        pin: true,
+        pinSpacing: true,
+        scrub: 0.4,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate(self) {
+          const idx = Math.min(total - 1, Math.floor(self.progress * total * 0.999));
+          setIndex((prev) => (prev === idx ? prev : idx));
+        },
+      });
+    });
+
+    mm.add("(min-width: 720px)", () => {
       if (reduce) {
         gsap.set([head, tiles, stage], { clearProps: "all", opacity: 1, y: 0 });
         return;
@@ -151,11 +179,11 @@ export function CompaniesSection() {
           0.12,
         )
         .to(stage, { opacity: 1, y: 0, duration: 0.65, ease: "power3.out" }, 0.28);
-    }, ref);
+    });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => ctx.revert();
-  }, [reduce]);
+    return () => mm.revert();
+  }, [reduce, total]);
 
   useEffect(() => {
     if (!lenis) return;
