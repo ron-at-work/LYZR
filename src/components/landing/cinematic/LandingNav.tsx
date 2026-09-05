@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NavMenuId } from "../data";
 import { SiteHeader } from "../sections/SiteHeader";
-import { useSound } from "../motion/SoundProvider";
+import { useSmoothScroll } from "../motion/SmoothScrollProvider";
 
 const CLOSE_DELAY_MS = 160;
 
 export function LandingNav() {
-  const { muted, toggleMuted } = useSound();
+  const { lenis } = useSmoothScroll();
   const headerRef = useRef<HTMLElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -41,11 +41,18 @@ export function LandingNav() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setNavSolid(window.scrollY > 24);
+    const onScroll = () => {
+      const y = lenis?.scroll ?? window.scrollY;
+      setNavSolid(y > 24);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    lenis?.on("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      lenis?.off("scroll", onScroll);
+    };
+  }, [lenis]);
 
   useEffect(() => {
     document.body.classList.toggle("is-nav-locked", mobileOpen);
@@ -59,14 +66,14 @@ export function LandingNav() {
   }, []);
 
   return (
-    <div className="landing-nav">
+    <div className={`landing-nav${navSolid ? " is-scrolled" : ""}`}>
       <SiteHeader
         bannerOpen={bannerOpen}
         closeMobileNav={closeMobileNav}
         headerRef={headerRef}
         mobileOpen={mobileOpen}
         mobileSection={mobileSection}
-        navSolid={navSolid}
+        navSolid
         onDismissBanner={() => setBannerOpen(false)}
         openNav={openNav}
         openNavMenu={openNavMenu}
@@ -74,14 +81,6 @@ export function LandingNav() {
         setMobileOpen={setMobileOpen}
         toggleMobileSection={toggleMobileSection}
       />
-      <button
-        aria-label={muted ? "Unmute sound" : "Mute sound"}
-        className="landing-nav-sound"
-        onClick={toggleMuted}
-        type="button"
-      >
-        <span className={muted ? "is-muted" : ""} />
-      </button>
     </div>
   );
 }

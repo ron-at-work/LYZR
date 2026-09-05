@@ -8,7 +8,7 @@ import { useSmoothScroll } from "../motion/SmoothScrollProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Primary (ink) + secondary (mist) — full sentence must finish before the next section may enter. */
+/** Primary (ink) + secondary (mist) — letter-by-letter read on scroll. */
 const PRIMARY = ["Lyzr", "is", "the", "enterprise", "control", "plane", "for", "agents"] as const;
 const SECONDARY = [
   "crafting",
@@ -23,6 +23,26 @@ const SECONDARY = [
 
 const FLAT = [...PRIMARY, ...SECONDARY];
 
+function WordChars({
+  word,
+  mist,
+  keyPrefix,
+}: {
+  word: string;
+  mist?: boolean;
+  keyPrefix: string;
+}) {
+  return (
+    <span className={`cine-about-word${mist ? " is-mist" : ""}`}>
+      {Array.from(word).map((ch, i) => (
+        <span className="cine-about-char" aria-hidden key={`${keyPrefix}-${i}`}>
+          {ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function ManifestoSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
@@ -32,20 +52,29 @@ export function ManifestoSection() {
     if (reduce || !sectionRef.current) return;
 
     const section = sectionRef.current;
-    const words = section.querySelectorAll<HTMLElement>(".cine-about-word");
-    const mist = section.querySelectorAll<HTMLElement>(".cine-about-word.is-mist");
+    const chars = section.querySelectorAll<HTMLElement>(".cine-about-char");
+    const mistChars = section.querySelectorAll<HTMLElement>(
+      ".cine-about-word.is-mist .cine-about-char",
+    );
+    const caret = section.querySelector<HTMLElement>(".cine-about-read-caret");
+
+    if (!chars.length) return;
 
     const ctx = gsap.context(() => {
-      gsap.set(words, { opacity: 0.2 });
-      gsap.set(mist, { color: "rgba(22, 22, 22, 0.4)" });
+      // Unread = nearly invisible; scroll inks one letter at a time
+      gsap.set(chars, { opacity: 0.08 });
+      gsap.set(mistChars, { color: "rgba(22, 22, 22, 0.4)" });
+      if (caret) gsap.set(caret, { opacity: 0 });
 
-      // Pin the WHOLE about section so the marquee cannot rise until the sentence is fully read.
+      const pinDistance = () =>
+        Math.round(window.innerHeight * Math.max(2.8, chars.length * 0.045));
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: () => `+=${Math.round(window.innerHeight * 2.6)}`,
-          scrub: 0.45,
+          end: pinDistance,
+          scrub: 0.35,
           pin: true,
           pinSpacing: true,
           anticipatePin: 1,
@@ -53,30 +82,64 @@ export function ManifestoSection() {
         },
       });
 
-      // Phase 1 — ink the full sentence (Lyzr → technology.)
+      // Phase 1 — each letter inks in sequence (reads like typing while scrolling)
       tl.to(
-        words,
+        chars,
         {
           opacity: 1,
           ease: "none",
-          stagger: { each: 0.035, from: "start" },
-          duration: 0.55,
+          stagger: { each: 0.028, from: "start" },
+          duration: 0.028,
         },
         0,
       );
       tl.to(
-        mist,
+        mistChars,
         {
           color: "#161616",
           ease: "none",
-          stagger: { each: 0.035, from: "start" },
-          duration: 0.55,
+          stagger: { each: 0.028, from: "start" },
+          duration: 0.028,
         },
-        0.05,
+        0.02,
       );
 
-      // Phase 2 — hold: sentence stays fully readable; next section still locked out
-      tl.to({}, { duration: 1.15 });
+      // Reading caret tracks the reveal head
+      if (caret) {
+        const moveCaret = (index: number) => {
+          const el = chars[Math.min(index, chars.length - 1)];
+          if (!el) return;
+          const stage = section.querySelector<HTMLElement>(".cine-about-stage");
+          if (!stage) return;
+          const sr = stage.getBoundingClientRect();
+          const cr = el.getBoundingClientRect();
+          gsap.set(caret, {
+            opacity: 1,
+            x: cr.right - sr.left + 2,
+            y: cr.top - sr.top,
+            height: cr.height * 0.85,
+          });
+        };
+
+        moveCaret(0);
+        tl.to(
+          {},
+          {
+            duration: chars.length * 0.028,
+            ease: "none",
+            onUpdate() {
+              const p = this.progress();
+              const idx = Math.floor(p * chars.length);
+              moveCaret(idx);
+            },
+          },
+          0,
+        );
+        tl.to(caret, { opacity: 0, duration: 0.12, ease: "none" }, ">-0.02");
+      }
+
+      // Phase 2 — hold fully readable before unpin
+      tl.to({}, { duration: 0.85 });
     }, sectionRef);
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -100,19 +163,16 @@ export function ManifestoSection() {
         <h2 className="cine-about-copy" aria-label={FLAT.join(" ")}>
           <span className="cine-about-line is-ink">
             {PRIMARY.map((word, wi) => (
-              <span className="cine-about-word" key={`p-${wi}`}>
-                {word}
-              </span>
+              <WordChars word={word} keyPrefix={`p-${wi}`} key={`p-${wi}`} />
             ))}
           </span>
           <span className="cine-about-line is-mist">
             {SECONDARY.map((word, wi) => (
-              <span className="cine-about-word is-mist" key={`s-${wi}`}>
-                {word}
-              </span>
+              <WordChars word={word} mist keyPrefix={`s-${wi}`} key={`s-${wi}`} />
             ))}
           </span>
         </h2>
+        <span aria-hidden className="cine-about-read-caret" />
         <span aria-hidden className="cine-cursor-mark" />
       </div>
 

@@ -10,12 +10,14 @@ import { CapabilitiesStack } from "./cinematic/CapabilitiesStack";
 import { CeoMessageSection } from "./cinematic/CeoMessageSection";
 import { CinematicCta } from "./cinematic/CinematicCta";
 import { CinematicHero } from "./cinematic/CinematicHero";
+import { CompaniesSection } from "./cinematic/CompaniesSection";
 import { LandingNav } from "./cinematic/LandingNav";
 import { ManifestoSection } from "./cinematic/ManifestoSection";
 import { MarqueeSection } from "./cinematic/MarqueeSection";
 import { Preloader } from "./cinematic/Preloader";
 import { ProofSection } from "./cinematic/ProofSection";
 import { QuoteSection } from "./cinematic/QuoteSection";
+import { ReasonsSection } from "./cinematic/ReasonsSection";
 import { TrustSection } from "./cinematic/TrustSection";
 
 function LandingInner() {
@@ -44,7 +46,9 @@ function LandingInner() {
         <CinematicHero />
         <ManifestoSection />
         <MarqueeSection />
+        <CompaniesSection />
         <TrustSection />
+        <ReasonsSection />
         <ProofSection />
         <CapabilitiesStack />
         <QuoteSection />

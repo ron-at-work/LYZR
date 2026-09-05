@@ -7,11 +7,19 @@ type Mode = "idle" | "engage" | "text";
 function isTextTarget(el: Element | null) {
   if (!el) return false;
   const tag = el.tagName;
-  return (
+  if (
     tag === "INPUT" ||
     tag === "TEXTAREA" ||
     tag === "SELECT" ||
     (el as HTMLElement).isContentEditable
+  ) {
+    return true;
+  }
+  // Prose / manifesto copy — use I-beam, hide crop ticks (no floating line above letters)
+  return Boolean(
+    el.closest(
+      "p, h1, h2, h3, h4, h5, h6, .cine-about-copy, .cine-about-char, .cine-about-word, [data-cursor='text']",
+    ),
   );
 }
 
@@ -63,8 +71,8 @@ export function AgentCursor() {
       }
 
       const t = document.elementFromPoint(e.clientX, e.clientY);
-      if (isTextTarget(t)) setMode("text");
-      else if (isEngageTarget(t)) setMode("engage");
+      if (isEngageTarget(t)) setMode("engage");
+      else if (isTextTarget(t)) setMode("text");
       else setMode("idle");
     };
 

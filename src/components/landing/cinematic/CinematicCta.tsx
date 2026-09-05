@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useCallback, useEffect, useState } from "react";
 import {
   FOOTER_BOTTOM,
   FOOTER_LEGAL,
@@ -20,12 +20,29 @@ const QUICK_LINKS = [
   { label: "Contact", href: "https://www.lyzr.ai/contact/" },
 ] as const;
 
+const ENDINGS = ["bold", "governed", "audited", "shippable", "agentic"] as const;
+
 export function CinematicCta() {
   const reduce = useReducedMotion();
-  const { muted } = useSound();
+  const { playHover } = useSound();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterState, setNewsletterState] = useState<"idle" | "done" | "error">("idle");
+  const [ending, setEnding] = useState(0);
+  const [paused, setPaused] = useState(false);
   const year = new Date().getFullYear();
+
+  const advance = useCallback(() => {
+    setEnding((prev) => (prev + 1) % ENDINGS.length);
+    playHover(0.85);
+  }, [playHover]);
+
+  useEffect(() => {
+    if (reduce || paused) return;
+    const id = window.setInterval(() => {
+      setEnding((prev) => (prev + 1) % ENDINGS.length);
+    }, 2400);
+    return () => window.clearInterval(id);
+  }, [paused, reduce]);
 
   return (
     <section className="cine-close" id="contact">
@@ -33,17 +50,44 @@ export function CinematicCta() {
         <div>
           <p className="cine-close-kicker">Let&apos;s build work that inspires.</p>
           <motion.h2
+            className="cine-close-title"
             initial={reduce ? false : { opacity: 0, y: 24 }}
             transition={{ duration: 0.75, ease: [0.32, 0.72, 0, 1] }}
             viewport={{ once: true, amount: 0.5 }}
             whileInView={{ opacity: 1, y: 0 }}
           >
-            Ready to build something bold?
+            Ready to build something{" "}
+            <button
+              type="button"
+              className="cine-close-swap"
+              aria-label={`Change ending. Currently: ${ENDINGS[ending]}`}
+              onClick={() => {
+                setPaused(true);
+                advance();
+              }}
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
+              onFocus={() => setPaused(true)}
+              onBlur={() => setPaused(false)}
+            >
+              <span className="cine-close-swap-slot" aria-hidden>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={ENDINGS[ending]}
+                    className="cine-close-swap-word"
+                    initial={reduce ? false : { y: "60%", opacity: 0 }}
+                    animate={{ y: "0%", opacity: 1 }}
+                    exit={reduce ? undefined : { y: "-55%", opacity: 0 }}
+                    transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                  >
+                    {ENDINGS[ending]}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+              <span className="sr-only">{ENDINGS[ending]}</span>?
+            </button>
           </motion.h2>
           <p className="cine-close-copy">© Lyzr {year}. All rights reserved.</p>
-          <p className="cine-close-hint">
-            {muted ? "Enable sound ↑ then hover the lines." : "Sound on — hover the lines."}
-          </p>
         </div>
 
         <div className="cine-close-actions">

@@ -439,47 +439,51 @@
   --hairline: rgba(17, 17, 17, 0.1);
 }
 
-.landing-nav-sound {
-  position: fixed;
-  top: 1.35rem;
-  left: clamp(6.75rem, 11vw, 8.75rem);
-  z-index: 51;
-  width: 2.35rem;
-  height: 2.35rem;
-  border-radius: 999px;
-  border: 1px solid rgba(17, 17, 17, 0.28);
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  pointer-events: auto;
+/* Keep megamenu above page grain; isolate from blend modes */
+.landing-nav > header {
+  z-index: 90;
+  isolation: isolate;
+  background-color: rgba(243, 241, 236, 0.72);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition:
+    background-color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@media (max-width: 1023px) {
-  .landing-nav-sound {
-    left: auto;
-    right: clamp(5.5rem, 28vw, 9.5rem);
-  }
+/* Stronger frost once scrolled so section labels never read as nav */
+.landing-nav.is-scrolled > header {
+  background-color: rgba(243, 241, 236, 0.92);
+  box-shadow: 0 1px 0 rgba(17, 17, 17, 0.06);
 }
 
-.landing-nav-sound span {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 0.7rem;
-  height: 0.7rem;
-  border: 1.5px solid #161616;
-  border-radius: 50%;
+/* Always-readable chrome on the warm cinematic canvas */
+.landing-nav .nav-chrome {
+  background-color: #ffffff !important;
+  border-color: rgba(17, 17, 17, 0.1) !important;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
-.landing-nav-sound span.is-muted::after {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(
-    135deg,
-    transparent 46%,
-    #161616 46%,
-    #161616 54%,
-    transparent 54%
-  );
+.landing-nav a.nav-chrome {
+  padding-left: 0.85rem;
+  padding-right: 0.85rem;
 }
+
+.landing-nav .nav-chrome > img {
+  display: block;
+  height: 1.65rem;
+  width: auto;
+}
+
+.landing-nav .nav-trigger {
+  color: #3a3a3a;
+}
+
+.landing-nav .nr .bsi {
+  color: #161616;
+  background: rgb(17 17 17 / 0.04);
+  border-color: rgb(17 17 17 / 0.1);
+}
+

@@ -1,17 +1,96 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useSound } from "../motion/SoundProvider";
 import { HeroMark } from "./HeroMark";
 import { InteractiveLines } from "./InteractiveLines";
 
 /** Rotating emphasis — Lyzr product outcomes, not agency filler. */
 const WORDS = ["production.", "your VPC.", "enterprise.", "governance.", "scale."] as const;
 
+/** Matches HeroMark buzz window before 3D A/I expand. */
+const BUZZ_MS = 780;
+const HAPTIC_TICK_MS = 55;
+
 export function CinematicHero() {
   const reduce = useReducedMotion();
+  const { playHover, playPluck } = useSound();
   const [blast, setBlast] = useState(false);
   const [word, setWord] = useState(0);
+  const holdingRef = useRef(false);
+  const timers = useRef<number[]>([]);
+  const hapticRef = useRef(0);
+
+  const clearHoldTimers = useCallback(() => {
+    timers.current.forEach((id) => window.clearTimeout(id));
+    timers.current = [];
+    if (hapticRef.current) {
+      window.clearInterval(hapticRef.current);
+      hapticRef.current = 0;
+    }
+    try {
+      navigator.vibrate?.(0);
+    } catch {
+      /* unsupported */
+    }
+  }, []);
+
+  const releaseHold = useCallback(() => {
+    if (!holdingRef.current) return;
+    holdingRef.current = false;
+    setBlast(false);
+    clearHoldTimers();
+  }, [clearHoldTimers]);
+
+  const startHold = useCallback(
+    (e: ReactPointerEvent<HTMLElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (holdingRef.current) return;
+      holdingRef.current = true;
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+      clearHoldTimers();
+      setBlast(true);
+
+      try {
+        navigator.vibrate?.([12, 28, 14, 26, 16, 24, 18, 22, 20, 20, 22, 18]);
+      } catch {
+        /* unsupported */
+      }
+      if (!reduce) {
+        hapticRef.current = window.setInterval(() => {
+          if (!holdingRef.current) return;
+          try {
+            navigator.vibrate?.(22);
+          } catch {
+            /* unsupported */
+          }
+          playHover(0.85 + Math.random() * 0.45);
+        }, HAPTIC_TICK_MS);
+      }
+
+      // When mark expands → 3D A / I (sound cue)
+      const toExpand = window.setTimeout(
+        () => {
+          if (!holdingRef.current) return;
+          if (hapticRef.current) {
+            window.clearInterval(hapticRef.current);
+            hapticRef.current = 0;
+          }
+          try {
+            navigator.vibrate?.([8, 40, 30]);
+          } catch {
+            /* unsupported */
+          }
+          playPluck(220, 0.7);
+        },
+        reduce ? 40 : BUZZ_MS,
+      );
+      timers.current.push(toExpand);
+    },
+    [clearHoldTimers, playHover, playPluck, reduce],
+  );
 
   useEffect(() => {
     if (reduce) return;
@@ -21,12 +100,29 @@ export function CinematicHero() {
     return () => window.clearInterval(id);
   }, [reduce]);
 
+  useEffect(() => () => clearHoldTimers(), [clearHoldTimers]);
+
+  const holdHandlers = {
+    onPointerCancel: releaseHold,
+    onPointerDown: startHold,
+    onPointerUp: releaseHold,
+  };
+
   return (
     <section className="cine-hero" id="top">
       <HeroMark blast={blast} className="cine-symbol-canvas" />
       <InteractiveLines blast={blast} />
 
       <div className="cine-hero-ui">
+        <div
+          aria-label="Hold to expand into LYZR"
+          className="cine-mark-hit"
+          role="button"
+          tabIndex={0}
+          {...holdHandlers}
+          onPointerLeave={releaseHold}
+        />
+
         <div className="cine-hero-left">
           <p className="cine-hero-kicker">Lyzr · Agent infrastructure</p>
           <motion.h1
@@ -84,19 +180,10 @@ export function CinematicHero() {
           <span />
         </button>
 
-        <p
-          className="cine-hold"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            setBlast(true);
-          }}
-          onPointerLeave={() => setBlast(false)}
-          onPointerUp={() => setBlast(false)}
-          onPointerCancel={() => setBlast(false)}
-        >
+        <p className="cine-hold" {...holdHandlers} onPointerLeave={releaseHold}>
           Scroll to explore
           <br />
-          Hold to expand the mark
+          Hold the mark — transforms into LYZR
         </p>
 
         <aside className="cine-hero-meta">

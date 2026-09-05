@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" fill="#000">
+  <!-- Letter A -->
+  <path d="M20 200 L78 20 H108 L166 200 H132 L118 155 H68 L54 200 Z M78 128 H108 L93 75 Z"/>
+  <!-- Letter I -->
+  <path d="M210 20 H290 V52 H268 V168 H290 V200 H210 V168 H232 V52 H210 Z"/>
+</svg>
