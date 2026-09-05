@@ -12,6 +12,7 @@ import {
 import { useSound } from "../motion/SoundProvider";
 import { HeroMark } from "./HeroMark";
 import { InteractiveLines } from "./InteractiveLines";
+import { PhoneHeroVisual } from "./PhoneHeroVisual";
 
 /** Rotating emphasis — Lyzr product outcomes, not agency filler. */
 const WORDS = ["production.", "your VPC.", "enterprise.", "governance.", "scale."] as const;
@@ -178,6 +179,8 @@ export function CinematicHero() {
             </a>
           </motion.div>
         </div>
+
+        {!showMark ? <PhoneHeroVisual /> : null}
 
         {showMark ? (
           <div className="cine-mark-stage">
