@@ -39,11 +39,20 @@ type AgentBit = {
   size: number;
 };
 
+type TermLabel = {
+  mesh: THREE.Mesh;
+  vel: THREE.Vector3;
+  seed: THREE.Vector3;
+  phase: number;
+  w: number;
+  h: number;
+};
+
 /**
  * 3D Lyzr mark only (inner glyph — no plate/squircle).
  * Warm-white theme: dark glass that expands on scroll like Trionn —
  * silhouette stays, gaps open (radial fail-open).
- * Hold → haptic buzz → mark explodes into agent particles.
+ * Hold → haptic buzz → mark explodes into agent particles + AI terms.
  */
 export function HeroMark({ className, blast = false }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -67,6 +76,14 @@ export function HeroMark({ className, blast = false }: Props) {
     let w = Math.max(1, mount.clientWidth || window.innerWidth);
     let h = Math.max(1, mount.clientHeight || window.innerHeight);
     let disposed = false;
+
+    /** AI term billboards: ~0.72 phone → 1.0 laptop → 1.15 large desktop. */
+    const termScreenMul = () => {
+      const vw = Math.max(320, window.innerWidth);
+      const t = (vw - 360) / (1280 - 360);
+      return Math.min(1.15, Math.max(0.72, 0.72 + t * 0.28));
+    };
+    let screenMul = termScreenMul();
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -155,8 +172,116 @@ export function HeroMark({ className, blast = false }: Props) {
     agentRoot.visible = false;
     const shards: Shard[] = [];
     const agents: AgentBit[] = [];
+    const terms: TermLabel[] = [];
     const geos: THREE.BufferGeometry[] = [floorGeo];
     const mats: THREE.Material[] = [inkMat, edgeMat, floorMat];
+
+    const AI_TERMS = [
+      "OpenAI",
+      "LLM",
+      "GPT-4o",
+      "Claude",
+      "Gemini",
+      "LangChain",
+      "Agents",
+      "RAG",
+      "Bedrock",
+      "Azure AI",
+      "Embeddings",
+      "Vector DB",
+      "Fine-tune",
+      "Tool use",
+      "MCP",
+      "Orchestration",
+      "Eval",
+      "Guardrails",
+      "Multi-agent",
+      "Inference",
+      "Tokens",
+      "Context",
+      "Prompt",
+      "Memory",
+    ] as const;
+
+    const makeTermTexture = (label: string) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d")!;
+      // Sharper glyphs on retina; world size still driven by screenMul
+      const fontPx = Math.round(42 * Math.min(2, window.devicePixelRatio || 1));
+      const padX = Math.round(28 * (fontPx / 42));
+      const padY = Math.round(16 * (fontPx / 42));
+      ctx.font = `600 ${fontPx}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+      const tw = Math.ceil(ctx.measureText(label).width);
+      canvas.width = tw + padX * 2;
+      canvas.height = fontPx + padY * 2;
+      // redraw after resize
+      ctx.font = `600 ${fontPx}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      // pill
+      const r = canvas.height / 2;
+      ctx.fillStyle = "rgba(18, 18, 18, 0.92)";
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.arcTo(canvas.width, 0, canvas.width, canvas.height, r);
+      ctx.arcTo(canvas.width, canvas.height, 0, canvas.height, r);
+      ctx.arcTo(0, canvas.height, 0, 0, r);
+      ctx.arcTo(0, 0, canvas.width, 0, r);
+      ctx.closePath();
+      ctx.fill();
+      // hairline
+      ctx.strokeStyle = "rgba(255,255,255,0.14)";
+      ctx.lineWidth = Math.max(1.5, 2 * (fontPx / 42));
+      ctx.stroke();
+      // label
+      ctx.fillStyle = "#f5f2ec";
+      ctx.fillText(label, canvas.width / 2, canvas.height / 2 + 1);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.needsUpdate = true;
+      return { tex, aspect: canvas.width / canvas.height };
+    };
+
+    const spawnTerms = () => {
+      AI_TERMS.forEach((label, i) => {
+        const { tex, aspect } = makeTermTexture(label);
+        // Base world height; live screenMul applied in the draw loop
+        const h = 0.16 + (i % 3) * 0.02;
+        const w = h * aspect;
+        const geo = new THREE.PlaneGeometry(w, h);
+        geos.push(geo);
+        const mat = new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          opacity: 0,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        });
+        mats.push(mat);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.frustumCulled = false;
+        mesh.visible = false;
+        agentRoot.add(mesh);
+
+        const ang = (i / AI_TERMS.length) * Math.PI * 2 + Math.random() * 0.2;
+        const elev = (Math.random() - 0.5) * 1.1;
+        const dist = 0.55 + Math.random() * 1.35;
+        terms.push({
+          mesh,
+          vel: new THREE.Vector3(
+            Math.cos(ang) * (1.4 + Math.random() * 1.6),
+            elev * (1.2 + Math.random()),
+            Math.sin(ang) * (1.2 + Math.random() * 1.4),
+          ),
+          seed: new THREE.Vector3(Math.cos(ang) * 0.2, elev * 0.15, Math.sin(ang) * 0.2),
+          phase: Math.random() * Math.PI * 2,
+          w,
+          h,
+        });
+        // keep dist used via vel magnitude — nudge seed out a bit
+        terms[terms.length - 1].seed.multiplyScalar(dist * 0.4);
+      });
+    };
 
     // Soft agent-node materials (ink + warm/cool accents)
     const agentInk = inkMat.clone();
@@ -232,7 +357,8 @@ export function HeroMark({ className, blast = false }: Props) {
         });
       }
     };
-    spawnAgents(72);
+    spawnAgents(48);
+    spawnTerms();
 
     // Spark trail points
     const sparkCount = 140;
@@ -599,6 +725,15 @@ export function HeroMark({ className, blast = false }: Props) {
       const boom = state.scrollProgress < 0.14 ? state.clickBurst : 0;
       const boomE = boom * boom * (3 - 2 * boom);
 
+      // Phone: large mark in the mid band under copy (positive Y = up on screen)
+      const vw = window.innerWidth;
+      const compact = vw < 720;
+      const tablet = vw >= 720 && vw < 960;
+      const layoutY = compact ? 0.55 : tablet ? -0.35 : 0;
+      const layoutScale = compact ? 1.15 : tablet ? 0.88 : 1;
+      const camZ = compact ? 3.85 : tablet ? 5.35 : 5.2;
+      const camY = compact ? -0.15 : tablet ? 0.22 : 0.12;
+
       // Gentle yaw — keep spinning unless fully exploded
       if (boomE < 0.85) {
         state.rotY += reduce ? 0 : 0.0028 * (1 - m * 0.7);
@@ -613,9 +748,10 @@ export function HeroMark({ className, blast = false }: Props) {
         const gx = Math.sin(t * 92) * 0.028 * gVib + Math.sin(t * 151) * 0.012 * gVib;
         const gy = Math.cos(t * 107) * 0.024 * gVib + Math.cos(t * 173) * 0.01 * gVib;
         group.position.x = state.pathX * (1 - m) + gx;
-        group.position.y = state.baseY + state.pathY * (1 - m) - m * 0.55 - p * 0.08 + gy;
+        group.position.y =
+          state.baseY + layoutY + state.pathY * (1 - m) - m * 0.55 - p * 0.08 + gy;
         group.position.z = -m * 2.4;
-        const bs = state.baseScale * state.aboutScale;
+        const bs = state.baseScale * state.aboutScale * layoutScale;
         const openScale = 1 + p * 0.1 + boomE * 0.15;
         const mergeScale = (1 - m * 0.42) * openScale;
         group.scale.set(bs * mergeScale, -bs * mergeScale, bs * mergeScale);
@@ -690,7 +826,6 @@ export function HeroMark({ className, blast = false }: Props) {
         if (!live) return;
         const reveal = Math.max(0, Math.min(1, (boomE - 0.08) / 0.4));
         const flight = boomE;
-        // Burst out, then soft orbital drift
         const ox =
           a.seed.x +
           a.vel.x * flight * 0.55 +
@@ -712,6 +847,35 @@ export function HeroMark({ className, blast = false }: Props) {
         const mat = a.mesh.material as THREE.MeshPhysicalMaterial;
         mat.opacity = 0.15 + reveal * 0.75;
         mat.emissiveIntensity = 0.25 + reveal * 0.85 + state.vibrateAmt * 0.2;
+      });
+
+      // —— AI term labels (OpenAI, LLM, …) — billboards, readable ——
+      terms.forEach((term, i) => {
+        const live = boomE > 0.12;
+        term.mesh.visible = live;
+        if (!live) return;
+        const reveal = Math.max(0, Math.min(1, (boomE - 0.1 - (i % 6) * 0.02) / 0.45));
+        const revE = reveal * reveal * (3 - 2 * reveal);
+        const flight = boomE;
+        const ox =
+          term.seed.x +
+          term.vel.x * flight * 0.72 +
+          Math.sin(t * 0.9 + term.phase) * 0.06 * revE;
+        const oy =
+          term.seed.y +
+          term.vel.y * flight * 0.65 +
+          Math.cos(t * 1.15 + term.phase) * 0.05 * revE;
+        const oz =
+          term.seed.z +
+          term.vel.z * flight * 0.55 +
+          Math.sin(t * 0.7 + i) * 0.04 * revE;
+        term.mesh.position.set(ox, oy, oz);
+        // Always face camera so terms stay readable
+        term.mesh.quaternion.copy(camera.quaternion);
+        const pop = (0.75 + revE * 0.35) * screenMul;
+        term.mesh.scale.set(pop, pop, pop);
+        const mat = term.mesh.material as THREE.MeshBasicMaterial;
+        mat.opacity = revE * 0.95;
       });
 
       // Sparks
@@ -750,8 +914,8 @@ export function HeroMark({ className, blast = false }: Props) {
         ui.style.opacity = fade.toFixed(3);
       }
 
-      camera.position.z = 5.2 + p * 0.55 + m * 1.6;
-      camera.position.y = 0.12 - p * 0.06 - m * 0.2;
+      camera.position.z = camZ + p * 0.55 + m * 1.6;
+      camera.position.y = camY - p * 0.06 - m * 0.2;
       // Micro camera shake during haptic buzz
       if (state.vibrateAmt > 0.05 && state.clickBurst < 0.4) {
         const cAmp = 0.018 * state.vibrateAmt * (1 - state.clickBurst);
@@ -772,6 +936,7 @@ export function HeroMark({ className, blast = false }: Props) {
     const onResize = () => {
       w = Math.max(1, mount.clientWidth || window.innerWidth);
       h = Math.max(1, mount.clientHeight || window.innerHeight);
+      screenMul = termScreenMul();
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);

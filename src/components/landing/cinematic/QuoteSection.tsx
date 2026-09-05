@@ -221,13 +221,8 @@ export function QuoteSection() {
               <article
                 className={`cine-motion-tile cine-agent-tile is-${tone}${isLive ? " is-live" : ""}${isFocus ? " is-focus" : ""}`}
                 key={agent.id}
-                onFocus={() => {
-                  playHover(0.85 + (i % 6) * 0.08);
-                  setFocusId(agent.id);
-                }}
                 onMouseEnter={() => {
                   playHover(0.85 + (i % 6) * 0.08);
-                  if (!playingId) setFocusId(agent.id);
                 }}
                 role="listitem"
               >
@@ -290,7 +285,7 @@ export function QuoteSection() {
               </span>
               <p className="cine-char-empty-kicker">Character select</p>
               <p className="cine-char-empty-copy">
-                Hover a card or hit play — the agent steps onto the stage.
+                Hit play voice — the agent steps onto the stage.
               </p>
             </div>
           ) : (

@@ -30,7 +30,8 @@ export function CeoMessageSection() {
       gsap.set(label, { opacity: 0, y: 16 });
       gsap.set(quote, { opacity: 0, y: 36 });
       gsap.set(meta, { opacity: 0, y: 20 });
-      gsap.set(portrait, { opacity: 0, x: 40, scale: 1.04 });
+      const fromX = window.innerWidth < 960 ? 0 : 40;
+      gsap.set(portrait, { opacity: 0, x: fromX, scale: 1.02 });
 
       const tl = gsap.timeline({
         scrollTrigger: {

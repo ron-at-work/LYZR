@@ -66,8 +66,13 @@ export function ManifestoSection() {
       gsap.set(mistChars, { color: "rgba(22, 22, 22, 0.4)" });
       if (caret) gsap.set(caret, { opacity: 0 });
 
-      const pinDistance = () =>
-        Math.round(window.innerHeight * Math.max(2.8, chars.length * 0.045));
+      const pinDistance = () => {
+        const vh = window.innerHeight;
+        const w = window.innerWidth;
+        if (w < 720) return Math.round(vh * Math.max(1.35, chars.length * 0.028));
+        if (w < 960) return Math.round(vh * Math.max(2, chars.length * 0.036));
+        return Math.round(vh * Math.max(2.8, chars.length * 0.045));
+      };
 
       const tl = gsap.timeline({
         scrollTrigger: {

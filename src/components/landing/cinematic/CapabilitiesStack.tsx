@@ -60,7 +60,40 @@ export function CapabilitiesStack() {
       return;
     }
 
-    const ctx = gsap.context(() => {
+    const onUpdate = (self: ScrollTrigger) => {
+      progressRef.current = self.progress;
+      const idx = Math.min(
+        STAGES.length - 1,
+        Math.floor(self.progress * STAGES.length * 0.999),
+      );
+      setStage((prev) => (prev === idx ? prev : idx));
+    };
+
+    const mm = gsap.matchMedia();
+
+    mm.add("(max-width: 719px)", () => {
+      ScrollTrigger.create({
+        trigger: pinRef.current,
+        start: "top 80%",
+        end: "bottom 20%",
+        scrub: 0.5,
+        onUpdate,
+      });
+    });
+
+    mm.add("(min-width: 720px) and (max-width: 959px)", () => {
+      ScrollTrigger.create({
+        trigger: pinRef.current,
+        start: "top top",
+        end: "+=160%",
+        pin: true,
+        scrub: 0.65,
+        anticipatePin: 1,
+        onUpdate,
+      });
+    });
+
+    mm.add("(min-width: 960px)", () => {
       ScrollTrigger.create({
         trigger: pinRef.current,
         start: "top top",
@@ -68,19 +101,12 @@ export function CapabilitiesStack() {
         pin: true,
         scrub: 0.75,
         anticipatePin: 1,
-        onUpdate: (self) => {
-          progressRef.current = self.progress;
-          const idx = Math.min(
-            STAGES.length - 1,
-            Math.floor(self.progress * STAGES.length * 0.999),
-          );
-          setStage((prev) => (prev === idx ? prev : idx));
-        },
+        onUpdate,
       });
-    }, ref);
+    });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => ctx.revert();
+    return () => mm.revert();
   }, [reduce]);
 
   useEffect(() => {

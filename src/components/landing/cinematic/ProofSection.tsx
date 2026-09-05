@@ -35,7 +35,7 @@ const PROJECTS = [
   },
 ] as const;
 
-/** Three projects always visible — hover/focus swaps the featured frame. */
+/** Accordion list — click a project to reveal its image directly underneath. */
 export function ProofSection() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
@@ -47,10 +47,9 @@ export function ProofSection() {
     const section = ref.current;
     const head = section.querySelector<HTMLElement>(".cine-work-intro");
     const items = section.querySelectorAll<HTMLElement>(".cine-work-item");
-    const frame = section.querySelector<HTMLElement>(".cine-work-frame");
 
     const ctx = gsap.context(() => {
-      gsap.set([head, frame], { opacity: 0, y: 28 });
+      gsap.set(head, { opacity: 0, y: 28 });
       gsap.set(items, { opacity: 0, y: 36 });
 
       const tl = gsap.timeline({
@@ -61,19 +60,17 @@ export function ProofSection() {
         },
       });
 
-      tl.to(head, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" })
-        .to(frame, { opacity: 1, y: 0, duration: 0.65, ease: "power3.out" }, "-=0.3")
-        .to(
-          items,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.55,
-            stagger: 0.1,
-            ease: "power3.out",
-          },
-          "-=0.35",
-        );
+      tl.to(head, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }).to(
+        items,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          stagger: 0.1,
+          ease: "power3.out",
+        },
+        "-=0.25",
+      );
     }, ref);
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -89,7 +86,10 @@ export function ProofSection() {
     };
   }, [lenis]);
 
-  const featured = PROJECTS[active];
+  useEffect(() => {
+    const t = window.setTimeout(() => ScrollTrigger.refresh(), 420);
+    return () => window.clearTimeout(t);
+  }, [active]);
 
   return (
     <section className="cine-work" id="work" ref={ref}>
@@ -103,50 +103,54 @@ export function ProofSection() {
         </div>
 
         <div className="cine-work-board">
-          <div className="cine-work-frame" aria-hidden>
-            {PROJECTS.map((p, i) => (
-              <div
-                className={`cine-work-panel${i === active ? " is-active" : ""}`}
-                key={p.title}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" src={p.image} />
-              </div>
-            ))}
-            <div className="cine-work-frame-meta">
-              <span>{featured.index}</span>
-              <span>{featured.title}</span>
-            </div>
-          </div>
-
           <ul className="cine-work-list" role="list">
-            {PROJECTS.map((p, i) => (
-              <li key={p.title}>
-                <div
-                  className={`cine-work-item${i === active ? " is-active" : ""}`}
-                  onMouseEnter={() => setActive(i)}
-                  onFocusCapture={() => setActive(i)}
-                >
-                  <button
-                    type="button"
-                    className="cine-work-hit"
-                    onClick={() => setActive(i)}
-                    aria-pressed={i === active}
-                    aria-label={`Show ${p.title}`}
-                  >
-                    <span className="cine-work-num">{p.index}</span>
-                    <span className="cine-work-copy">
-                      <span className="cine-work-tag">{p.tag}</span>
-                      <span className="cine-work-title">{p.title}</span>
-                      <span className="cine-work-body">{p.body}</span>
-                    </span>
-                  </button>
-                  <a className="cine-link cine-work-cta" href={p.href}>
-                    Explore <span aria-hidden>→</span>
-                  </a>
-                </div>
-              </li>
-            ))}
+            {PROJECTS.map((p, i) => {
+              const isOpen = i === active;
+              return (
+                <li key={p.title}>
+                  <div className={`cine-work-item${isOpen ? " is-active" : ""}`}>
+                    <div className="cine-work-row">
+                      <button
+                        type="button"
+                        className="cine-work-hit"
+                        onClick={() => setActive(i)}
+                        aria-expanded={isOpen}
+                        aria-controls={`work-panel-${p.index}`}
+                        aria-label={`${isOpen ? "Showing" : "Show"} ${p.title}`}
+                      >
+                        <span className="cine-work-num">{p.index}</span>
+                        <span className="cine-work-copy">
+                          <span className="cine-work-tag">{p.tag}</span>
+                          <span className="cine-work-title">{p.title}</span>
+                          <span className="cine-work-body">{p.body}</span>
+                        </span>
+                      </button>
+                      <a className="cine-link cine-work-cta" href={p.href}>
+                        Explore <span aria-hidden>→</span>
+                      </a>
+                    </div>
+
+                    <div
+                      className={`cine-work-reveal${isOpen ? " is-open" : ""}`}
+                      id={`work-panel-${p.index}`}
+                      role="region"
+                      aria-hidden={!isOpen}
+                    >
+                      <div className="cine-work-reveal-inner">
+                        <div className="cine-work-frame">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img alt="" src={p.image} />
+                          <div className="cine-work-frame-meta">
+                            <span>{p.index}</span>
+                            <span>{p.title}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

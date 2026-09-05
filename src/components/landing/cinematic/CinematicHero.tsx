@@ -1,7 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useSound } from "../motion/SoundProvider";
 import { HeroMark } from "./HeroMark";
 import { InteractiveLines } from "./InteractiveLines";
@@ -18,9 +25,19 @@ export function CinematicHero() {
   const { playHover, playPluck } = useSound();
   const [blast, setBlast] = useState(false);
   const [word, setWord] = useState(0);
+  /** Phone: skip WebGL mark — typography-first hero. */
+  const [showMark, setShowMark] = useState(false);
   const holdingRef = useRef(false);
   const timers = useRef<number[]>([]);
   const hapticRef = useRef(0);
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia("(min-width: 720px)");
+    const sync = () => setShowMark(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   const clearHoldTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -47,7 +64,7 @@ export function CinematicHero() {
     (e: ReactPointerEvent<HTMLElement>) => {
       e.preventDefault();
       e.stopPropagation();
-      if (holdingRef.current) return;
+      if (!showMark || holdingRef.current) return;
       holdingRef.current = true;
       e.currentTarget.setPointerCapture?.(e.pointerId);
       clearHoldTimers();
@@ -89,7 +106,7 @@ export function CinematicHero() {
       );
       timers.current.push(toExpand);
     },
-    [clearHoldTimers, playHover, playPluck, reduce],
+    [clearHoldTimers, playHover, playPluck, reduce, showMark],
   );
 
   useEffect(() => {
@@ -109,20 +126,11 @@ export function CinematicHero() {
   };
 
   return (
-    <section className="cine-hero" id="top">
-      <HeroMark blast={blast} className="cine-symbol-canvas" />
-      <InteractiveLines blast={blast} />
+    <section className={`cine-hero${showMark ? "" : " is-phone"}`} id="top">
+      {showMark ? <HeroMark blast={blast} className="cine-symbol-canvas" /> : null}
+      {showMark ? <InteractiveLines blast={blast} /> : null}
 
       <div className="cine-hero-ui">
-        <div
-          aria-label="Hold to explode into agents"
-          className="cine-mark-hit"
-          role="button"
-          tabIndex={0}
-          {...holdHandlers}
-          onPointerLeave={releaseHold}
-        />
-
         <div className="cine-hero-left">
           <p className="cine-hero-kicker">Lyzr · Agent infrastructure</p>
           <motion.h1
@@ -131,14 +139,14 @@ export function CinematicHero() {
             transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
           >
             <span className="cine-hero-line">Take AI agents to</span>
-            <span className="cine-hero-swap">
-              <AnimatePresence mode="wait">
+            <span className="cine-hero-swap" aria-live="polite">
+              <AnimatePresence initial={false} mode="wait">
                 <motion.em
                   animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                  exit={{ opacity: 0, filter: "blur(14px)", y: -10 }}
-                  initial={reduce ? false : { opacity: 0, filter: "blur(14px)", y: 14 }}
+                  exit={{ opacity: 0, filter: "blur(8px)", y: -8 }}
+                  initial={reduce ? false : { opacity: 0, filter: "blur(8px)", y: 10 }}
                   key={WORDS[word]}
-                  transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
                 >
                   {WORDS[word]}
                 </motion.em>
@@ -171,6 +179,19 @@ export function CinematicHero() {
           </motion.div>
         </div>
 
+        {showMark ? (
+          <div className="cine-mark-stage">
+            <div
+              aria-label="Hold to explode into agents"
+              className="cine-mark-hit"
+              role="button"
+              tabIndex={0}
+              {...holdHandlers}
+              onPointerLeave={releaseHold}
+            />
+          </div>
+        ) : null}
+
         <button
           aria-label="Scroll to about"
           className="cine-scroll-hint"
@@ -180,11 +201,13 @@ export function CinematicHero() {
           <span />
         </button>
 
-        <p className="cine-hold" {...holdHandlers} onPointerLeave={releaseHold}>
-          Scroll to explore
-          <br />
-          Hold the mark — explodes into agents
-        </p>
+        {showMark ? (
+          <p className="cine-hold" {...holdHandlers} onPointerLeave={releaseHold}>
+            Scroll to explore
+            <br />
+            Hold the mark — agents + AI terms
+          </p>
+        ) : null}
 
         <aside className="cine-hero-meta">
           <div className="cine-hero-meta-row">
